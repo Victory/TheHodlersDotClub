@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>A Community for Hodlers</title>
+</head>
+<body>
+
+<div class="header-box">
+  <div class="header-item">
+    <h3>Welcome HoldOnHoldOn a Hodlers Club</h3>
+  </div>
+</div>
+
+<div class="tagline-box">
+  <div class="tagline-item">
+  </div>
+</div>
+
+<div class="howit-works-header-box">
+  <div class="how-it-works-header-item">
+  </div>
+</div>
+
+<form class="pact-form" create-pact>
+  <label>
+    <p>Min Price: </p>
+    <p class="pact-form-explanation">The minimum number of <span c-units></span> to join this club</p>
+    <input type="number" name="minPrice" />
+  </label>
+
+  <label>
+    <p>Min BuyIn (<span c-units></span>):</p>
+    <p class="pact-form-explanation">Lower Buy ins can attract more members but can also be easier for badies to manipulate.</p>
+    <input type="number" name="minBuyIn" />
+  </label>
+
+  <label>
+    <p>Penalty for leaving before price is matched (in <span c-units></span>):</p>
+    <p class="pact-form-explanation">Percentage of <span c-units></span> cowards will lose if they leave before the Min Price is reached.</p>
+    <input type="number" name="minBuyIn" />
+  </label>
+
+  <label>
+    <p>Blocks Until Maturity</p>
+    <p class="pact-form-explanation">How many blocks until a member becomes an full member.</p>
+    <input type="number" name="minPrice" />
+  </label>
+
+  <label>
+    <p>Price Oracle Address:</p>
+    <p class="pact-form-explanation">Don't change this unless you REALLY know what you are doing!</p>
+    <input type="number" name="oracle" />
+  </label>
+
+  <button type="button">Create Pact</button>
+</form>
+
+<script src="js/home.js"></script>
+
+</body>
+</html>
