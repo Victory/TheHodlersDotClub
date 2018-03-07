@@ -17,12 +17,12 @@
   </div>
 </div>
 
-<div class="howit-works-header-box">
+<div class="how-it-works-header-box">
   <div class="how-it-works-header-item">
   </div>
 </div>
 
-<form class="pact-form" create-pact>
+<form class="pact-form" c-create-pact>
   <label>
     <p>Min Price: </p>
     <p class="pact-form-explanation">The minimum number of <span c-units></span> to join this club</p>
@@ -30,14 +30,16 @@
   </label>
 
   <label>
-    <p>Min BuyIn (<span c-units></span>):</p>
-    <p class="pact-form-explanation">Lower Buy ins can attract more members but can also be easier for badies to manipulate.</p>
+    <p>Minimum Buy in (<span c-units></span>):</p>
+    <p class="pact-form-explanation">The smallets amount of <span c-units></span> alowed to join this club.
+      Lower Buy ins can attract more members but can also be easier for badies to manipulate.</p>
     <input type="number" name="minBuyIn" />
   </label>
 
   <label>
-    <p>Penalty for leaving before price is matched (in <span c-units></span>):</p>
-    <p class="pact-form-explanation">Percentage of <span c-units></span> cowards will lose if they leave before the Min Price is reached.</p>
+    <p>Penalty Percentage:</p>
+    <p class="pact-form-explanation">Percentage of <span class="coward">coward's</span>
+      <span c-units></span>  will lose if they leave before the Min Price is reached.</p>
     <input type="number" name="minBuyIn" />
   </label>
 
@@ -45,12 +47,6 @@
     <p>Blocks Until Maturity</p>
     <p class="pact-form-explanation">How many blocks until a member becomes an full member.</p>
     <input type="number" name="minPrice" />
-  </label>
-
-  <label>
-    <p>Price Oracle Address:</p>
-    <p class="pact-form-explanation">Don't change this unless you REALLY know what you are doing!</p>
-    <input type="number" name="oracle" />
   </label>
 
   <button type="button">Create Pact</button>
