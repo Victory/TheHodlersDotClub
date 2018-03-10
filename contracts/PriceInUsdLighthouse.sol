@@ -3,11 +3,12 @@ pragma solidity 0.4.15;
 
 contract PriceInUsdLighthouse {
 
-    uint donations;
+    uint public donations;
 
     // keepers can set price
     mapping(address => bool) keepers;
     mapping(address => address) keepersChain;
+    mapping(address => uint) keepersShares;
     address keepersChainTail;
     uint numberOfKeepers;
     uint maxKeepers;
@@ -17,17 +18,15 @@ contract PriceInUsdLighthouse {
     // owner can add and remove custodians
     address owner;
 
-    uint minBlocksBetweenPriceUpdate;
-
     uint priceInUsdCents;
     uint lastPriceUpdateBlockNumber;
     address lastPriceSetBy;
 
     event NewKeeper(address _sender, address _newKeeper);
     event KeeperRemoved(address _sender, address _removedKeeper, address _position);
-    event PriceUpdated(address _sender, address _lastPriceSetBy, uint _priceInUsd);
+    event PriceUpdated(address _sender, uint _priceInUsdCents);
 
-    event ErrorPriceUpdatedTooSoon(address _sender, address _lastPriceSetBy, uint _priceInUsd, uint _nextValidBlockToUpdatePrice);
+    event ErrorPriceUpdatedTooSoon(address _sender, address _lastPriceSetBy, uint _priceInUsdCents);
     event ErrorAlreadyAKeeper(address _sender, address _newKeeper);
     event ErrorTooManyKeepers(address _sender);
 
@@ -40,7 +39,6 @@ contract PriceInUsdLighthouse {
         maxKeepers = 5;
 
         priceInUsdCents = 0;
-        minBlocksBetweenPriceUpdate = 100;
         lastPriceUpdateBlockNumber = 0;
 
         donations = 0;
@@ -75,11 +73,18 @@ contract PriceInUsdLighthouse {
         keepers[_newOwner] = true;
     }
 
-    function addCustodians(address _newCustodian)
+    function addCustodian(address _newCustodian)
     public
     onlyBy(owner)
     {
-        keepers[_newCustodian] = true;
+        custodians[_newCustodian] = true;
+    }
+
+    function removeCustodian(address _custodianToRemove)
+    public
+    onlyBy(owner)
+    {
+        custodians[_custodianToRemove] = false;
     }
 
     function addKeeper(address _newKeeper)
@@ -152,15 +157,10 @@ contract PriceInUsdLighthouse {
     public
     onlyIfKeeper()
     {
-        if (block.number > lastPriceUpdateBlockNumber + minBlocksBetweenPriceUpdate) {
-            priceInUsdCents = _priceInUsdCents;
-            lastPriceUpdateBlockNumber = block.number;
-            lastPriceSetBy = msg.sender;
-            PriceUpdated(msg.sender, lastPriceSetBy, priceInUsdCents);
-        } else {
-            ErrorPriceUpdatedTooSoon(
-                msg.sender, lastPriceSetBy, priceInUsdCents, lastPriceUpdateBlockNumber + minBlocksBetweenPriceUpdate);
-        }
+        priceInUsdCents = _priceInUsdCents;
+        lastPriceUpdateBlockNumber = block.number;
+        lastPriceSetBy = msg.sender;
+        PriceUpdated(msg.sender, priceInUsdCents);
     }
 
     function getPrice()
@@ -171,33 +171,30 @@ contract PriceInUsdLighthouse {
         return priceInUsdCents;
     }
 
+    function getPriceAndWhen()
+    public
+    constant
+    returns (
+        uint _priceInUsdCents,
+        uint _lastPriceUpdateBlockNumber)
+    {
+        _priceInUsdCents = priceInUsdCents;
+        _lastPriceUpdateBlockNumber = lastPriceUpdateBlockNumber;
+    }
+
     function getState()
     public
     constant
     returns (
-        uint _priceInUsd,
+        uint _priceInUsdCents,
         uint _lastPriceUpdateBlockNumber,
         address _lastPriceSetBy,
-        uint _nextValidBlockToUpdatePrice)
+        uint _donations)
     {
-        _priceInUsd = priceInUsdCents;
+        _priceInUsdCents = priceInUsdCents;
         _lastPriceUpdateBlockNumber = lastPriceUpdateBlockNumber;
         _lastPriceSetBy = lastPriceSetBy;
-        _nextValidBlockToUpdatePrice = lastPriceUpdateBlockNumber + minBlocksBetweenPriceUpdate;
-    }
-
-    function withdraw()
-    public
-    onlyIfKeeper()
-    {
-        address cur = keepersChainTail;
-        for (uint ii = 0; ii < maxKeepers; ii++) {
-            cur.transfer(donations / numberOfKeepers);
-            cur = keepersChain[cur];
-            if (cur == address(0)) {
-                return;
-            }
-        }
+        _donations = donations;
     }
 
     function getKeepers()
@@ -215,6 +212,39 @@ contract PriceInUsdLighthouse {
         }
 
         _keepers = __keepers;
+    }
+
+    function withdraw()
+    public
+    {
+        uint share = keepersShares[msg.sender];
+        keepersShares[msg.sender] = 0;
+        msg.sender.transfer(share);
+    }
+
+    function checkShares()
+    public
+    returns (uint _shares)
+    {
+        _shares = keepersShares[msg.sender];
+    }
+
+    function splitShares()
+    public
+    onlyIfKeeper()
+    {
+        address cur = keepersChainTail;
+        uint share;
+        uint originalDonations = donations;
+        for (uint ii = 0; ii < maxKeepers; ii++) {
+            share = originalDonations / numberOfKeepers;
+            donations -= share;
+            keepersShares[cur] += share;
+            cur = keepersChain[cur];
+            if (cur == address(0)) {
+                return;
+            }
+        }
     }
 
     // Donations to keep the lighthouse running
