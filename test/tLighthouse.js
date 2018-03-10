@@ -1,17 +1,16 @@
-var PriceInUsdLighthouse = artifacts.require("./PriceInUsdLighthouse.sol");
+const PriceInUsdLighthouse = artifacts.require("./PriceInUsdLighthouse.sol");
 const findEventByNameOrThrow = require('../testutil/txutil.js').findEventByNameOrThrow;
-const blockMiner = require('../testutil/blockminer');
 
 const expectedCatch = function() {
   assert.isOk(true);
 };
 
 contract('PriceInUsdLighthouse', function(accounts) {
-  var owner = accounts[0];
-  var keeper1 = accounts[2];
+  const owner = accounts[0];
+  const keeper1 = accounts[2];
 
   it("should deploy", function () {
-    var contract;
+    let contract;
     return PriceInUsdLighthouse.deployed().then(function (instance) {
       contract = instance;
     }).then(function () {
@@ -20,7 +19,7 @@ contract('PriceInUsdLighthouse', function(accounts) {
   });
 
   it("should let owner set price", function () {
-    var contract;
+    let contract;
     return PriceInUsdLighthouse.deployed().then(function (instance) {
       contract = instance;
       return contract.getKeepers.call({});
@@ -29,7 +28,7 @@ contract('PriceInUsdLighthouse', function(accounts) {
 
       return contract.setPrice(210, {from: owner});
     }).then(function (tx) {
-      var evt = findEventByNameOrThrow(tx, "PriceUpdated");
+      let evt = findEventByNameOrThrow(tx, "PriceUpdated");
       assert.equal(210, evt.args._priceInUsdCents);
 
       return contract.getPrice.call(undefined);
@@ -49,13 +48,13 @@ contract('PriceInUsdLighthouse', function(accounts) {
     }).then(function () {
       return contract.addKeeper(keeper1, {from: owner});
     }).then(function (tx) {
-      var evt = findEventByNameOrThrow(tx, "NewKeeper");
+      let evt = findEventByNameOrThrow(tx, "NewKeeper");
       assert.equal(owner, evt.args._sender);
       assert.equal(keeper1, evt.args._newKeeper);
 
       return contract.setPrice(410, {from: keeper1});
     }).then(function (tx) {
-      var evt = findEventByNameOrThrow(tx, "PriceUpdated");
+      let evt = findEventByNameOrThrow(tx, "PriceUpdated");
       assert.equal(keeper1, evt.args._sender);
       assert.equal(410, evt.args._priceInUsdCents);
     });
@@ -63,15 +62,14 @@ contract('PriceInUsdLighthouse', function(accounts) {
 });
 
 contract('PriceInUsdLighthouse', function(accounts) {
-  var owner = accounts[0];
-  var keeper1 = accounts[2];
-  var keeper2 = accounts[3];
-  var keeper3 = accounts[4];
-  var keeper4 = accounts[5];
-  var keeper5 = accounts[6];
+  const owner = accounts[0];
+  const keeper1 = accounts[2];
+  const keeper2 = accounts[3];
+  const keeper3 = accounts[4];
+  const keeper4 = accounts[5];
 
   it("should allow adding and removing keepers", function() {
-    var contract;
+    let contract;
     return PriceInUsdLighthouse.deployed().then(function(instance) {
       contract = instance;
       return contract.getKeepers.call({});
