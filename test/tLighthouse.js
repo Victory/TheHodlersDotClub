@@ -67,6 +67,7 @@ contract('PriceInUsdLighthouse', function(accounts) {
   const keeper2 = accounts[3];
   const keeper3 = accounts[4];
   const keeper4 = accounts[5];
+  const keeper5 = accounts[6];
 
   it("should allow adding and removing keepers", function() {
     let contract;
@@ -74,25 +75,22 @@ contract('PriceInUsdLighthouse', function(accounts) {
       contract = instance;
       return contract.getKeepers.call({});
     }).then(function(result) {
-      assert.include(owner, result);
-      console.log(result);
+      assert.include(result, owner);
       return contract.addKeeper(keeper1, {from: owner});
     }).then(function(tx) {
       findEventByNameOrThrow(tx, 'NewKeeper');
       return contract.getKeepers.call({});
     }).then(function(result) {
-      assert.include(owner, result);
-      assert.include(keeper1, result);
-      console.log(result);
+      assert.include(result, owner);
+      assert.include(result, keeper1);
       return contract.addKeeper(keeper2, {from: owner});
     }).then(function(tx) {
       findEventByNameOrThrow(tx, 'NewKeeper');
       return contract.getKeepers.call({});
     }).then(function(result) {
-      console.log(result);
-      assert.include(owner, result);
-      assert.include(keeper1, result);
-      assert.include(keeper2, result);
+      assert.include(result, owner);
+      assert.include(result, keeper1);
+      assert.include(result, keeper2);
       return contract.addKeeper(keeper3, {from: owner});
     }).then(function(tx) {
       findEventByNameOrThrow(tx, 'NewKeeper');
@@ -101,8 +99,64 @@ contract('PriceInUsdLighthouse', function(accounts) {
       findEventByNameOrThrow(tx, 'NewKeeper');
       return contract.getKeepers.call({});
     }).then(function(result) {
-      console.log(result);
-    });
+      assert.include(result, owner);
+      assert.include(result, keeper1);
+      assert.include(result, keeper2);
+      assert.include(result, keeper3);
+      assert.include(result, keeper4);
 
+      return contract.addKeeper(keeper5, {from: owner});
+    }).then(function(tx) {
+      var evt = findEventByNameOrThrow(tx, 'ErrorTooManyKeepers');
+      assert.equal(keeper5, evt.args._newKeeper);
+
+      return contract.addKeeper(keeper1, {from: owner});
+    }).then(function(tx) {
+      var evt = findEventByNameOrThrow(tx, 'ErrorAlreadyAKeeper');
+      assert.equal(keeper1, evt.args._newKeeper);
+
+      return contract.removeKeeper(keeper1, {from: owner});
+    }).then(function(tx) {
+      var evt = findEventByNameOrThrow(tx, 'KeeperRemoved');
+      assert.equal(keeper1, evt.args._removedKeeper);
+
+      return contract.removeKeeper(owner, {from: owner});
+    }).then(function(tx) {
+      var evt = findEventByNameOrThrow(tx, 'KeeperRemoved');
+      assert.equal(owner, evt.args._removedKeeper);
+
+      return contract.getKeepers.call({});
+    }).then(function(result) {
+      assert.include(result, keeper2);
+      assert.include(result, keeper3);
+      assert.include(result, keeper4);
+
+      return contract.removeKeeper(keeper4, {from: owner});
+    }).then(function(tx) {
+      var evt = findEventByNameOrThrow(tx, 'KeeperRemoved');
+      assert.equal(keeper4, evt.args._removedKeeper);
+
+      return contract.getKeepers.call({});
+    }).then(function(result) {
+      assert.include(result, keeper2);
+      assert.include(result, keeper3);
+
+      return contract.removeKeeper(keeper3, {from: owner});
+    }).then(function(tx) {
+      var evt = findEventByNameOrThrow(tx, 'KeeperRemoved');
+      assert.equal(keeper3, evt.args._removedKeeper);
+
+      return contract.getKeepers.call({});
+    }).then(function(result) {
+      assert.include(result, keeper2);
+
+      return contract.removeKeeper(keeper2, {from: owner})
+          .then(assert.fail)
+          .catch(expectedCatch);
+    }).then(function() {
+      return contract.getKeepers.call({});
+    }).then(function(result) {
+      assert.include(result, keeper2);
+    });
   });
 });

@@ -23,12 +23,12 @@ contract PriceInUsdLighthouse {
     address lastPriceSetBy;
 
     event NewKeeper(address _sender, address _newKeeper);
-    event KeeperRemoved(address _sender, address _removedKeeper, address _position);
+    event KeeperRemoved(address _sender, address _removedKeeper);
     event PriceUpdated(address _sender, uint _priceInUsdCents);
 
     event ErrorPriceUpdatedTooSoon(address _sender, address _lastPriceSetBy, uint _priceInUsdCents);
     event ErrorAlreadyAKeeper(address _sender, address _newKeeper);
-    event ErrorTooManyKeepers(address _sender);
+    event ErrorTooManyKeepers(address _sender, address _newKeeper);
 
     function PriceInUsdLighthouse()
     {
@@ -45,6 +45,8 @@ contract PriceInUsdLighthouse {
 
         keepersChainTail = owner;
         addKeeper(owner);
+
+        addCustodian(owner);
     }
 
     modifier onlyBy(address _account)
@@ -97,7 +99,7 @@ contract PriceInUsdLighthouse {
         }
 
         if (numberOfKeepers >= maxKeepers) {
-            ErrorTooManyKeepers(msg.sender);
+            ErrorTooManyKeepers(msg.sender, _newKeeper);
             return;
         }
 
@@ -114,13 +116,18 @@ contract PriceInUsdLighthouse {
     {
         address cur = keepersChainTail;
         for (uint ii = 0; ii < maxKeepers; ii++) {
-            cur = keepersChain[cur];
-            if (cur == address(0)) {
-                return keepersChain[cur];
+            if (keepersChain[cur] != address(0)) {
+                cur = keepersChain[cur];
+                continue;
             }
+
+            return cur;
         }
         require(false);
     }
+
+    event debug1();
+    event debug2(address _cur, address _prev, address _keeperToRemove);
 
     function removeKeeper(address _keeperToRemove)
     public
@@ -133,16 +140,21 @@ contract PriceInUsdLighthouse {
         address prev = keepersChainTail;
         if (_keeperToRemove == keepersChainTail) {
             keepersChainTail = keepersChain[prev];
-
-            KeeperRemoved(msg.sender, _keeperToRemove, 0);
+            numberOfKeepers = numberOfKeepers - 1;
+            KeeperRemoved(msg.sender, _keeperToRemove);
             return;
         }
 
+        debug1();
+
         address cur = keepersChain[prev];
         for (uint ii = 0; ii < maxKeepers; ii++) {
+            debug2(cur, prev, _keeperToRemove);
             if (cur == _keeperToRemove) {
                 keepersChain[prev] = keepersChain[cur];
                 keepersChain[cur] = address(0);
+                numberOfKeepers = numberOfKeepers - 1;
+                KeeperRemoved(msg.sender, _keeperToRemove);
                 return;
             } else {
                 prev = cur;
