@@ -137,8 +137,6 @@ contract PriceInUsdLighthouse {
         require(false);
     }
 
-    event debug1();
-    event debug2(address _cur, address _prev, address _keeperToRemove);
 
     function removeKeeper(address _keeperToRemove)
     public
@@ -156,11 +154,8 @@ contract PriceInUsdLighthouse {
             return;
         }
 
-        debug1();
-
         address cur = keepersChain[prev];
         for (uint ii = 0; ii < maxKeepers; ii++) {
-            debug2(cur, prev, _keeperToRemove);
             if (cur == _keeperToRemove) {
                 keepersChain[prev] = keepersChain[cur];
                 keepersChain[cur] = address(0);
