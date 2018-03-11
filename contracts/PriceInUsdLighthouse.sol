@@ -79,6 +79,7 @@ contract PriceInUsdLighthouse {
     public
     onlyBy(owner)
     {
+        require(!custodians[_newCustodian]);
         custodians[_newCustodian] = true;
     }
 
@@ -86,8 +87,18 @@ contract PriceInUsdLighthouse {
     public
     onlyBy(owner)
     {
+        require(custodians[_custodianToRemove]);
         custodians[_custodianToRemove] = false;
     }
+
+    function isCustodian(address _custodian)
+    public
+    constant
+    returns (bool)
+    {
+        return custodians[_custodian];
+    }
+
 
     function addKeeper(address _newKeeper)
     public

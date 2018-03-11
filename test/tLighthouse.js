@@ -159,4 +159,23 @@ contract('PriceInUsdLighthouse', function(accounts) {
       assert.include(result, keeper2);
     });
   });
+
+
+});
+
+
+contract('PriceInUsdLighthouse', function(accounts) {
+  const owner = accounts[0];
+  const custodian1 = accounts[1];
+  const custodian2 = accounts[2];
+
+  it("should allow the owner to add and remove custodians", function() {
+    let contract;
+    return PriceInUsdLighthouse.deployed().then(function (instance) {
+      contract = instance;
+      contract.addCustodian(custodian1, {from: owner});
+    }).then(function () {
+      contract.addCustodian(custodian2, {from: owner});
+    });
+  });
 });
