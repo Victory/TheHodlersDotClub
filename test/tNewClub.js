@@ -1,6 +1,6 @@
 var TheHodlersDotClub = artifacts.require("./TheHodlersDotClub.sol");
 
-contract('TheHodlerDotClub', function(accounts) {
+contract('TheHodlersDotClub', function(accounts) {
   var owner = accounts[0];
   it("should deploy", function() {
     var contract;

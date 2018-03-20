@@ -18,7 +18,7 @@ contract('PriceInUsdLighthouse', function(accounts) {
     });
   });
 
-  it("should let owner set price", function () {
+  it("should let keepers to set price", function () {
     let contract;
     return PriceInUsdLighthouse.deployed().then(function (instance) {
       contract = instance;
@@ -31,7 +31,7 @@ contract('PriceInUsdLighthouse', function(accounts) {
       let evt = findEventByNameOrThrow(tx, "PriceUpdated");
       assert.equal(210, evt.args._priceInUsdCents);
 
-      return contract.getPrice.call(undefined);
+      return contract.getPrice.call({});
     }).then(function (result) {
       assert.equal(210, result);
 
@@ -159,15 +159,13 @@ contract('PriceInUsdLighthouse', function(accounts) {
       assert.include(result, keeper2);
     });
   });
-
-
 });
-
 
 contract('PriceInUsdLighthouse', function(accounts) {
   const owner = accounts[0];
   const custodian1 = accounts[1];
   const custodian2 = accounts[2];
+  const nobody = accounts[3];
 
   it("should allow the owner to add and remove custodians", function() {
     let contract;
@@ -175,7 +173,84 @@ contract('PriceInUsdLighthouse', function(accounts) {
       contract = instance;
       contract.addCustodian(custodian1, {from: owner});
     }).then(function () {
-      contract.addCustodian(custodian2, {from: owner});
+      return contract.removeCustodian(custodian1, {from: owner});
+    }).then(function () {
+      return contract.addCustodian(custodian2, {from: owner});
+    });
+  });
+
+  it("should not allow others to add or remove custodians", function() {
+    let contract;
+    return PriceInUsdLighthouse.deployed().then(function (instance) {
+      contract = instance;
+
+      return contract.addCustodian(custodian1, {from: nobody})
+          .then(assert.fail)
+          .catch(expectedCatch);
+    }).then(function () {
+      return contract.removeCustodian(custodian1, {from: nobody})
+          .then(assert.fail)
+          .catch(expectedCatch);
+    });
+  });
+});
+
+
+
+contract('PriceInUsdLighthouse', function(accounts) {
+  const owner = accounts[0];
+  const keeper1 = accounts[1];
+  const keeper2 = accounts[2];
+  const keeper3 = accounts[3];
+  const donator1 = accounts[4];
+  const donator2 = accounts[5];
+
+  let keeper1balance;
+
+  it("should let keepers to set price", function() {
+    let contract;
+    return PriceInUsdLighthouse.deployed().then(function(instance) {
+      contract = instance;
+      return contract.addKeeper(keeper1, {from: owner});
+    }).then(function() {
+      return contract.removeKeeper(owner, {from: owner});
+    }).then(function() {
+      return Promise.all([
+          contract.addKeeper(keeper2, {from: owner}),
+          contract.addKeeper(keeper3, {from: owner})
+      ]);
+    }).then(function() {
+      return Promise.all([
+        contract.donate({from: donator1, value: web3.toWei(15, 'ether')}),
+        contract.donate({from: donator2, value: web3.toWei(15, 'ether')})
+      ]);
+    }).then(function() {
+      return web3.eth.getBalance(contract.address);
+    }).then(function(result) {
+      assert.equal(web3.toWei(30, 'ether'), result);
+
+      return contract.splitShares({from: keeper1});
+    }).then(function() {
+      return contract.checkShares.call({from: keeper1});
+    }).then(function(result) {
+      assert.equal(web3.toWei(10, 'ether'), result);
+
+      return contract.checkShares.call({from: keeper2});
+    }).then(function(result) {
+      assert.equal(web3.toWei(10, 'ether'), result);
+
+      return contract.checkShares.call({from: keeper3});
+    }).then(function(result) {
+      assert.equal(web3.toWei(10, 'ether'), result);
+
+      keeper1balance = web3.eth.getBalance(keeper1);
+      return contract.withdraw({from: keeper1, gasPrice: web3.toWei(1.5, 'gwei')});
+    }).then(function(tx) {
+      let gasPrice = web3.toWei(1.5, 'gwei');
+      let costOfGas = gasPrice * tx.receipt.gasUsed;
+      let expected = keeper1balance.sub(costOfGas).add(web3.toWei(10, 'ether'));
+      let actual = web3.eth.getBalance(keeper1);
+      assert.equal(expected.valueOf(), actual.valueOf());
     });
   });
 });

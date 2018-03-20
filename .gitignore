@@ -63,3 +63,4 @@ typings/
 .next
 
 /holdonholdon.iml
+/web3-lighthouse-keeper/node_modules/

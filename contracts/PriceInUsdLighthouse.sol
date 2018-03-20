@@ -265,11 +265,18 @@ contract PriceInUsdLighthouse {
         }
     }
 
+    function donate()
+    payable
+    public
+    {
+        donations += msg.value;
+    }
+
     // Donations to keep the lighthouse running
     function()
     payable
     public
     {
-        donations += msg.value;
+        donate();
     }
 }
