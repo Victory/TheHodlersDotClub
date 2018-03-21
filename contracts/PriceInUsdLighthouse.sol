@@ -217,6 +217,7 @@ contract PriceInUsdLighthouse {
 
     function getKeepers()
     public
+    constant
     returns (address[] _keepers)
     {
         address[] memory __keepers = new address[](maxKeepers);
@@ -242,6 +243,7 @@ contract PriceInUsdLighthouse {
 
     function checkShares()
     public
+    constant
     returns (uint _shares)
     {
         _shares = keepersShares[msg.sender];
