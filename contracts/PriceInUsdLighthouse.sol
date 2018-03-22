@@ -3,8 +3,6 @@ pragma solidity 0.4.15;
 
 contract PriceInUsdLighthouse {
 
-    uint public donations;
-
     // keepers can set price
     mapping(address => bool) keepers;
     mapping(address => address) keepersChain;
@@ -40,8 +38,6 @@ contract PriceInUsdLighthouse {
 
         priceInUsdCents = 0;
         lastPriceUpdateBlockNumber = 0;
-
-        donations = 0;
 
         keepersChainTail = owner;
         addKeeper(owner);
@@ -212,7 +208,7 @@ contract PriceInUsdLighthouse {
         _priceInUsdCents = priceInUsdCents;
         _lastPriceUpdateBlockNumber = lastPriceUpdateBlockNumber;
         _lastPriceSetBy = lastPriceSetBy;
-        _donations = donations;
+        _donations = this.balance;
     }
 
     function getKeepers()
@@ -255,6 +251,7 @@ contract PriceInUsdLighthouse {
     {
         address cur = keepersChainTail;
         uint share;
+        uint donations = this.balance;
         uint originalDonations = donations;
         for (uint ii = 0; ii < maxKeepers; ii++) {
             share = originalDonations / numberOfKeepers;
@@ -267,18 +264,8 @@ contract PriceInUsdLighthouse {
         }
     }
 
-    function donate()
-    payable
-    public
-    {
-        donations += msg.value;
-    }
+    // Donations keep the lighthouse running
+    function donate() payable public {}
 
-    // Donations to keep the lighthouse running
-    function()
-    payable
-    public
-    {
-        donate();
-    }
+    function() payable public {}
 }

@@ -207,7 +207,7 @@ contract('PriceInUsdLighthouse', function(accounts) {
 
   let keeper1balance;
 
-  it("should let keepers to set price", function() {
+  it("should let keepers withdraw", function() {
     let contract;
     return PriceInUsdLighthouse.deployed().then(function(instance) {
       contract = instance;
@@ -251,6 +251,16 @@ contract('PriceInUsdLighthouse', function(accounts) {
       let expected = keeper1balance.sub(costOfGas).add(web3.toWei(10, 'ether'));
       let actual = web3.eth.getBalance(keeper1);
       assert.equal(expected.valueOf(), actual.valueOf());
+      assert.equal('20', web3.fromWei(web3.eth.getBalance(contract.address), 'ether'));
+      return contract.withdraw({from: keeper1, gasPrice: web3.toWei(1.5, 'gwei')});
+    }).then(function(tx) {
+      assert.equal('20', web3.fromWei(web3.eth.getBalance(contract.address), 'ether'));
+      return contract.withdraw({from: keeper2, gasPrice: web3.toWei(1.5, 'gwei')});
+    }).then(function(tx) {
+      assert.equal('10', web3.fromWei(web3.eth.getBalance(contract.address), 'ether'));
+      return contract.withdraw({from: keeper3, gasPrice: web3.toWei(1.5, 'gwei')});
+    }).then(function(tx) {
+      assert.equal('0', web3.fromWei(web3.eth.getBalance(contract.address), 'ether'));
     });
   });
 });
