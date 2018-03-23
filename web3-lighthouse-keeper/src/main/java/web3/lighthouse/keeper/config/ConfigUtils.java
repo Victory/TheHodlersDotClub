@@ -1,19 +1,20 @@
 package web3.lighthouse.keeper.config;
 
-import web3.lighthouse.keeper.config.Config;
-
 public class ConfigUtils {
 
+  /**
+   * Ropsten
+   *
+   * wallet password: this is my password for test net
+   */
   public static Config getConfig() {
 
-    String password = "";
-    boolean isEncrypted = false;
-    String publicKey = "";
-    String privateKey = "";
+    String rpcUrl = "http://node.kickthecoin.com/ropsten";
+    String contractAddress = "0xdd3a294310dbd8b53feee7ca1e1205062fe5d066";
     String apiUrl = "https://api.coinmarketcap.com/v1/ticker/pirl/?convert=USD";
     String priceJsonKey = "price_usd";
-    int poolingIntervalInSeconds = 10;
+    int poolingIntervalInSeconds = 1800;
 
-    return new Config(password, isEncrypted, publicKey, privateKey, apiUrl, priceJsonKey, poolingIntervalInSeconds);
+    return new Config(rpcUrl, apiUrl, priceJsonKey, poolingIntervalInSeconds, contractAddress);
   }
 }

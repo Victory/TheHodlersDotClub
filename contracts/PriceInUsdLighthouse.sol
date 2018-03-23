@@ -266,6 +266,5 @@ contract PriceInUsdLighthouse {
 
     // Donations keep the lighthouse running
     function donate() payable public {}
-
     function() payable public {}
 }

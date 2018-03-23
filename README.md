@@ -33,3 +33,15 @@ Command for testrpc
 Run with
 
     truffle test
+
+## web3j command line tools
+
+[web3j](https://github.com/web3j/web3j/releases) releases have command
+line tools needed to create the Contract Java classes.
+
+    truffle compile
+    truffle deploy # to testrpc
+    web3j truffle generate build/contracts/PriceInUsdLighthouse.json \ 
+        -o web3-lighthouse-keeper/src/main/java/ \
+        -p web3.lighthouse.keeper.sol \
+
