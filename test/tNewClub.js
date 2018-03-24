@@ -1,4 +1,5 @@
 var TheHodlersDotClub = artifacts.require("./TheHodlersDotClub.sol");
+const Lighthouse = artifacts.require("./PriceInUsdLighthouse.sol");
 
 const findEventByNameOrThrow = require('../testutil/txutil.js').findEventByNameOrThrow;
 const failOnFoundEvent = require('../testutil/txutil.js').failOnFoundEvent;
@@ -17,11 +18,15 @@ contract('TheHodlersDotClub', function(accounts) {
 
   it("should be able to be init", function () {
     let contract;
+    let lighthouse;
     return TheHodlersDotClub.deployed().then(function (instance) {
       contract = instance;
+      return Lighthouse.deployed();
+    }).then(function (instance) {
+      lighthouse = instance;
 
       return contract.foundClub(
-          std_minPrice, std_minBuyIn, std_penaltyPercentage, std_blocksUntilMaturity,
+          std_minPrice, std_minBuyIn, std_penaltyPercentage, std_blocksUntilMaturity, lighthouse.address,
           {from: founder, value: web3.toWei(std_minBuyIn, 'ether')});
 
     }).then(function (tx) {
@@ -39,6 +44,8 @@ contract('TheHodlersDotClub', function(accounts) {
       assert.equal(std_minBuyIn, result[1].valueOf());
       assert.equal(std_penaltyPercentage, result[2].valueOf());
       assert.equal(std_blocksUntilMaturity, result[3].valueOf());
+      assert.equal(true, result[4].valueOf());
+      assert.equal(lighthouse.address, result[5].valueOf());
     });
   });
 });
@@ -48,11 +55,16 @@ contract('TheHodlersDotClub', function(accounts) {
 
   it("should NOT be able to be init if already init", function() {
     let contract;
+    let lighthouse;
     return TheHodlersDotClub.deployed().then(function(instance) {
       contract = instance;
 
+      return Lighthouse.deployed();
+    }).then(function(instance) {
+      lighthouse = instance;
+
       return contract.foundClub(
-          std_minPrice, std_minBuyIn, std_penaltyPercentage, std_blocksUntilMaturity,
+          std_minPrice, std_minBuyIn, std_penaltyPercentage, std_blocksUntilMaturity, lighthouse.address,
           {from: founder, value: web3.toWei(std_minBuyIn, 'ether')});
 
     }).then(function(tx) {
@@ -79,12 +91,17 @@ contract('TheHodlersDotClub', function(accounts) {
   const member3BuyIn = web3.toWei(std_minBuyIn, 'ether');
 
   it("should be able to join club", function () {
-    var contract;
+    let contract;
+    let lighthouse;
     return TheHodlersDotClub.deployed().then(function (instance) {
       contract = instance;
 
+      return Lighthouse.deployed();
+    }).then(function(instance) {
+      lighthouse = instance;
+
       return contract.foundClub(
-          std_minPrice, std_minBuyIn, std_penaltyPercentage, std_blocksUntilMaturity,
+          std_minPrice, std_minBuyIn, std_penaltyPercentage, std_blocksUntilMaturity, lighthouse.address,
           {from: founder, value: web3.toWei(std_minBuyIn, 'ether')});
 
     }).then(function (tx) {
@@ -117,8 +134,9 @@ contract('TheHodlersDotClub', function(accounts) {
     });
   });
 
-  it("should not be able to the join club if send below min value", function () {
-    var contract;
+  it("should not be able to the join club if sent below min value", function () {
+    let contract;
+
     return TheHodlersDotClub.deployed().then(function (instance) {
       contract = instance;
 
@@ -136,3 +154,4 @@ contract('TheHodlersDotClub', function(accounts) {
   });
 
 });
+
