@@ -1,6 +1,6 @@
 
 module.exports = {
-  findEventByNameOrThrow: function(tx, eventName) {
+  findEventByNameOrFail: function(tx, eventName) {
 
     var logs = tx.logs || [];
     for (var ii = 0; ii < logs.length; ii++) {
@@ -9,7 +9,7 @@ module.exports = {
       }
     }
 
-    throw "Could not find event: " + eventName;
+    assert.fail(true, false, "Could not find event: " + eventName);
   },
 
   failOnFoundEvent: function(tx, eventName) {
