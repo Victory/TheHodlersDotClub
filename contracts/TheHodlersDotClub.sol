@@ -11,6 +11,7 @@ contract TheHodlersDotClub {
         uint blockJoined;
         uint maturityBlock;
         uint hodling;
+        bool isMature;
     }
 
     address founder;
@@ -24,10 +25,15 @@ contract TheHodlersDotClub {
     uint curPriceInUsdCents;
 
     address[] hodlerAddresses;
+    // The index of the last checked address for maturity
+    uint matureCheckIndex;
+
     mapping(address => Hodler) hodlers;
     uint numberOfHodlers = 0;
+    uint numberOfMatureHodlers = 0;
 
     bool priceHasBeenReached = false;
+    uint priceReachedBlock = 0;
 
     // how man coins have been left by cowards going to the hodlers
     uint hodlersPool;
@@ -114,7 +120,8 @@ contract TheHodlersDotClub {
         hodlers[msg.sender] = Hodler({
             blockJoined: block.number,
             maturityBlock: block.number + blocksUntilMaturity,
-            hodling: hodling});
+            hodling: hodling,
+            isMature: false});
 
         NewHodler(msg.sender, hodlers[msg.sender].hodling, hodlers[msg.sender].maturityBlock);
     }
@@ -144,7 +151,7 @@ contract TheHodlersDotClub {
         }
 
         // immature hodler, no penalty no bonus
-        if (hodlers[msg.sender].maturityBlock < block.number) {
+        if (!hodlers[msg.sender].isMature) {
             msg.sender.transfer(hodling);
             ImmatureHodlerLeftClub(msg.sender, hodling);
             return;
@@ -155,7 +162,7 @@ contract TheHodlersDotClub {
         uint toSend = hodling + bonus;
         msg.sender.transfer(toSend);
 
-        HodlerLeftClub(msg.sender, hodling, bonus);
+        HodlerLeftClub(msg.sender, numberOfHodlers, hodlersPool);
 
     }
 
@@ -167,11 +174,41 @@ contract TheHodlersDotClub {
 
         if (curPriceInUsdCents >= minPrice) {
             priceHasBeenReached = true;
+            priceReachedBlock = block.number;
         }
 
         NewPriceFromLighthouse(msg.sender, curPriceInUsdCents, priceHasBeenReached);
     }
 
+    function maintenance(uint _limit)
+    public
+    {
+        if (matureCheckIndex == hodlerAddresses.length) {
+            return;
+        }
+
+        uint end = (hodlerAddresses.length < _limit) ? hodlerAddresses.length : _limit;
+
+        uint ii = 0;
+        if (priceReachedBlock == 0) {
+            for (ii = matureCheckIndex; ii < end; ii++) {
+                if (hodlers[hodlerAddresses[ii]].maturityBlock < block.number) {
+                    hodlers[hodlerAddresses[ii]].isMature = true;
+                    numberOfMatureHodlers += 1;
+                } else {
+                    break;
+                }
+            }
+        } else {
+            for (ii = matureCheckIndex; ii < end; ii++) {
+                if (hodlers[hodlerAddresses[ii]].maturityBlock < priceReachedBlock) {
+                    hodlers[hodlerAddresses[ii]].isMature = true;
+                    numberOfMatureHodlers += 1;
+                }
+            }
+        }
+        matureCheckIndex = ii;
+    }
 
     function getHodlers()
     public
@@ -187,13 +224,15 @@ contract TheHodlersDotClub {
     returns(
         uint _blockJoined,
         uint _maturityBlock,
-        uint _hodling
+        uint _hodling,
+        bool _isMature
     )
     {
         Hodler memory hodler = hodlers[_hodler];
         _blockJoined = hodler.blockJoined;
         _maturityBlock = hodler.maturityBlock;
         _hodling = hodler.hodling;
+        _isMature = hodler.isMature;
     }
 
     function isHodler(address _who)
