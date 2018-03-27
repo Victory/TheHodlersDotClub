@@ -1,6 +1,7 @@
 const TheHodlersDotClub = artifacts.require("./TheHodlersDotClub.sol");
 const Lighthouse = artifacts.require("./PriceInUsdLighthouse.sol");
 
+const ClubStatus = require('../testutil/clubstatus').ClubStatus;
 const findEventByNameOrFail = require('../testutil/txutil.js').findEventByNameOrFail;
 const failOnFoundEvent = require('../testutil/txutil.js').failOnFoundEvent;
 
@@ -40,15 +41,17 @@ contract('TheHodlersDotClub', function(accounts) {
 
       return contract.getStatus.call({});
     }).then(function (result) {
-      assert.equal(std_minPrice, result[0].valueOf());
-      assert.equal(std_minBuyIn, result[1].valueOf());
-      assert.equal(std_penaltyPercentage, result[2].valueOf());
-      assert.equal(std_blocksUntilMaturity, result[3].valueOf());
-      assert.equal(true, result[4].valueOf()); // founded
-      assert.equal(false, result[5]); // price has been reached
-      assert.equal(lighthouse.address, result[6].valueOf());
-      assert.equal(0, result[7].valueOf()); // adminPool
-      assert.equal(0, result[8].valueOf()); // hodlersPool
+      const status = new ClubStatus(result);
+      assert.equal(std_minPrice, status.minPrice);
+      assert.equal(std_minBuyIn, status.minBuyIn);
+      assert.equal(std_penaltyPercentage, status.penaltyPercentage);
+      assert.equal(std_blocksUntilMaturity, status.blocksUntilMaturity);
+      assert.equal(true, status.founded);
+      assert.equal(false, status.priceHasBeenReached);
+      assert.equal(lighthouse.address, status.lighthouse);
+      assert.equal(0, status.adminPool);
+      assert.equal(0, status.hodlersPool);
+      assert.equal(0, status.numberOfMatureHodlers);
     });
   });
 });
@@ -96,9 +99,9 @@ contract('TheHodlersDotClub', function(accounts) {
   let founderMaturity;
   let founderJoined;
 
+  let lighthouse;
   it("should be able to join club", function () {
     let contract;
-    let lighthouse;
     return TheHodlersDotClub.deployed().then(function (instance) {
       contract = instance;
 
@@ -117,7 +120,7 @@ contract('TheHodlersDotClub', function(accounts) {
       founderMaturity = founderJoined + std_blocksUntilMaturity;
       return contract.joinClub({from: hodler1, value: hodler1BuyIn});
     }).then(function(tx) {
-      var evt = findEventByNameOrFail(tx, 'NewHodler');
+      const evt = findEventByNameOrFail(tx, 'NewHodler');
       assert.equal(hodler1, evt.args._hodler);
       assert.equal(hodler1BuyIn, evt.args._hodling);
       const expected = tx.receipt.blockNumber + std_blocksUntilMaturity;
@@ -166,10 +169,19 @@ contract('TheHodlersDotClub', function(accounts) {
 
       return contract.getStatus.call({});
     }).then(function (result) {
-      assert.equal(std_minPrice, result[0].valueOf());
-      assert.equal(std_minBuyIn, result[1].valueOf());
-      assert.equal(std_penaltyPercentage, result[2].valueOf());
-      assert.equal(std_blocksUntilMaturity, result[3].valueOf());
+
+      const status = new ClubStatus(result);
+      assert.equal(std_minPrice, status.minPrice);
+      assert.equal(std_minBuyIn, status.minBuyIn);
+      assert.equal(std_penaltyPercentage, status.penaltyPercentage);
+      assert.equal(std_blocksUntilMaturity, status.blocksUntilMaturity);
+      assert.equal(true, status.founded);
+      assert.equal(false, status.priceHasBeenReached);
+      assert.equal(lighthouse.address, status.lighthouse);
+      assert.equal(0, status.adminPool);
+      assert.equal(0, status.hodlersPool);
+      assert.equal(0, status.numberOfMatureHodlers);
+
     }).then(function () {
       return contract.joinClub({from: hodler3, value: hodler3BuyIn})
           .then(assert.fail)
@@ -213,7 +225,7 @@ contract('TheHodlersDotClub', function(accounts) {
       founderMaturity = founderJoined + std_blocksUntilMaturity;
       return contract.joinClub({from: hodler1, value: web3.toBigNumber(hodler1BuyIn).add(roundOff)});
     }).then(function (tx) {
-      var evt = findEventByNameOrFail(tx, 'NewHodler');
+      const evt = findEventByNameOrFail(tx, 'NewHodler');
       assert.equal(hodler1, evt.args._hodler);
       assert.equal(hodler1BuyIn, evt.args._hodling);
       const expected = tx.receipt.blockNumber + std_blocksUntilMaturity;
@@ -221,8 +233,9 @@ contract('TheHodlersDotClub', function(accounts) {
 
       return contract.getStatus.call({});
     }).then(function(result) {
-      assert.equal(roundOff * 2, result[7].valueOf()); // adminPool
-      assert.equal(0, result[8].valueOf()); // hodlersPool
+      const status = new ClubStatus(result);
+      assert.equal(roundOff * 2, status.adminPool); // adminPool
+      assert.equal(0, status.hodlersPool); // hodlersPool
 
       return contract.joinClub({from: hodler1, value: web3.toWei(100000, 'wei')});
     }).then(function() {

@@ -25,8 +25,6 @@ contract TheHodlersDotClub {
     uint curPriceInUsdCents;
 
     address[] hodlerAddresses;
-    // The index of the last checked address for maturity
-    uint matureCheckIndex;
 
     mapping(address => Hodler) hodlers;
     uint numberOfHodlers = 0;
@@ -54,10 +52,18 @@ contract TheHodlersDotClub {
         _;
     }
 
+    modifier onlyIfHodler(address _who)
+    {
+        require(isHodler(_who));
+        _;
+    }
+
     event ClubInitialized(address _founder, uint _minPrice, uint _minBuyIn, uint _penaltyPercentage, uint _blocksUntilMaturity, address _lighthouse);
     event NewHodler(address _hodler, uint _hodling, uint _maturityBlock);
     event HolderLevelIncreased(address _hodler, uint _increase, uint _hodling);
     event NewPriceFromLighthouse(address _inquirer, uint _priceInUsdCents, bool _priceHasBeenReached);
+
+    event HodlerIsNowMature(address _hodler, address _txSender, uint _numberOfMatureHodlers);
 
     event CowardLeftClub(address _coward, uint _sentToAdminPool, uint _sentToHodlersPool, uint _withdrawn);
     event ImmatureHodlerLeftClub(address _hodler, uint _withdrawn);
@@ -105,7 +111,7 @@ contract TheHodlersDotClub {
         uint hodling  = msg.value - roundOff;
         adminPool += roundOff;
 
-        // if not a new player, just update holdings
+        // if not a new player, just update hodlings
         if (isHodler(msg.sender)) {
             hodlers[msg.sender].hodling += msg.value;
             HolderLevelIncreased(msg.sender, msg.value, hodlers[msg.sender].hodling);
@@ -128,8 +134,10 @@ contract TheHodlersDotClub {
 
     function leaveClub()
     public
+    onlyIfHodler(msg.sender)
     {
-        require(isHodler(msg.sender));
+        // last chance to mark mature
+        setMature(msg.sender);
 
         uint hodling = hodlers[msg.sender].hodling;
         hodlers[msg.sender].hodling = 0;
@@ -141,7 +149,7 @@ contract TheHodlersDotClub {
             // 5% to the admin
             uint toAdminPool = (hodling * 50) / 1000;
             adminPool += toAdminPool;
-            // to the hodlers
+            // penalty % to the hodlers
             uint toHodlersPool = (hodling * penaltyPercentage) / 1000;
             hodlersPool += toHodlersPool;
             hodling = hodling - toAdminPool - toHodlersPool;
@@ -157,13 +165,11 @@ contract TheHodlersDotClub {
             return;
         }
 
-        uint bonus = hodlersPool * (1 / (1 + numberOfHodlers));
+        uint bonus = hodlersPool * (1 / (numberOfMatureHodlers));
         hodlersPool -= bonus;
         uint toSend = hodling + bonus;
         msg.sender.transfer(toSend);
-
         HodlerLeftClub(msg.sender, numberOfHodlers, hodlersPool);
-
     }
 
     function queryLighthouse()
@@ -180,34 +186,29 @@ contract TheHodlersDotClub {
         NewPriceFromLighthouse(msg.sender, curPriceInUsdCents, priceHasBeenReached);
     }
 
-    function maintenance(uint _limit)
+    function setMature(address _hodler)
     public
+    onlyIfHodler(_hodler)
     {
-        if (matureCheckIndex == hodlerAddresses.length) {
+        if (hodlers[_hodler].isMature) {
             return;
         }
 
-        uint end = (hodlerAddresses.length < _limit) ? hodlerAddresses.length : _limit;
+        bool isMature = (priceHasBeenReached) ?
+            hodlers[_hodler].maturityBlock < priceReachedBlock :
+            hodlers[_hodler].maturityBlock < block.number;
 
-        uint ii = 0;
-        if (priceReachedBlock == 0) {
-            for (ii = matureCheckIndex; ii < end; ii++) {
-                if (hodlers[hodlerAddresses[ii]].maturityBlock < block.number) {
-                    hodlers[hodlerAddresses[ii]].isMature = true;
-                    numberOfMatureHodlers += 1;
-                } else {
-                    break;
-                }
-            }
-        } else {
-            for (ii = matureCheckIndex; ii < end; ii++) {
-                if (hodlers[hodlerAddresses[ii]].maturityBlock < priceReachedBlock) {
-                    hodlers[hodlerAddresses[ii]].isMature = true;
-                    numberOfMatureHodlers += 1;
-                }
-            }
+        if (isMature) {
+            hodlers[_hodler].isMature = isMature;
+            numberOfMatureHodlers += 1;
+            HodlerIsNowMature(_hodler, msg.sender, numberOfMatureHodlers);
         }
-        matureCheckIndex = ii;
+    }
+
+    function setSenderMature()
+    public
+    {
+        setMature(msg.sender);
     }
 
     function getHodlers()
@@ -254,7 +255,9 @@ contract TheHodlersDotClub {
         bool _priceHasBeenReached,
         address _lighthouse,
         uint _adminPool,
-        uint _hodlersPool)
+        uint _hodlersPool,
+        uint _numberOfMatureHodlers
+    )
     {
         _minPrice = minPrice;
         _minBuyIn = minBuyIn;
@@ -265,5 +268,6 @@ contract TheHodlersDotClub {
         _lighthouse = lighthouse;
         _adminPool = adminPool;
         _hodlersPool = hodlersPool;
+        _numberOfMatureHodlers = numberOfMatureHodlers;
     }
 }

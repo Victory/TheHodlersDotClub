@@ -1,6 +1,9 @@
 const TheHodlersDotClub = artifacts.require("./TheHodlersDotClub.sol");
 const Lighthouse = artifacts.require("./PriceInUsdLighthouse.sol");
 
+const blockMiner = require('../testutil/blockminer');
+const ClubStatus = require('../testutil/clubstatus').ClubStatus;
+
 const findEventByNameOrFail = require('../testutil/txutil.js').findEventByNameOrFail;
 const failOnFoundEvent = require('../testutil/txutil.js').failOnFoundEvent;
 
@@ -11,7 +14,85 @@ const expectedCatch = function() {
 const std_minPrice = 550;
 const std_minBuyIn = web3.toWei(3, 'ether');
 const std_penaltyPercentage = 450; // 45%
-const std_blocksUntilMaturity = 35;
+const std_blocksUntilMaturity = 40;
+
+contract('TheHodlersDotClub', function(accounts) {
+  const founder = accounts[0];
+  const lighthouseKeeper = accounts[1];
+  const anyone = accounts[2];
+
+  const hodler1 = accounts[4];
+  let hodler1Maturity;
+
+  const immature1 = accounts[6];
+  let immature1Maturity;
+
+  it("should allow setting maturity", function () {
+    let contract;
+    let lighthouse;
+    return TheHodlersDotClub.deployed().then(function (instance) {
+      contract = instance;
+      return Lighthouse.deployed();
+    }).then(function (instance) {
+      lighthouse = instance;
+
+      return lighthouse.addKeeper(lighthouseKeeper, {from: founder});
+    }).then(function() {
+
+      return contract.foundClub(
+          std_minPrice, std_minBuyIn, std_penaltyPercentage, std_blocksUntilMaturity, lighthouse.address,
+          {from: founder, value: std_minBuyIn});
+    }).then(function(tx) {
+      findEventByNameOrFail(tx, 'ClubInitialized');
+
+      return contract.joinClub({from: hodler1, value: std_minBuyIn});
+    }).then(function(tx) {
+      const evt = findEventByNameOrFail(tx, 'NewHodler');
+      hodler1Maturity = evt.args._maturityBlock;
+    }).then(blockMiner.mineBlocks(anyone, std_blocksUntilMaturity / 2)).then(function() {
+      return contract.joinClub({from: immature1, value: std_minBuyIn});
+    }).then(function(tx) {
+      const evt = findEventByNameOrFail(tx, 'NewHodler');
+      immature1Maturity = evt.args._maturityBlock;
+
+      assert.isAbove(immature1Maturity.valueOf(), hodler1Maturity.valueOf());
+
+      return contract.setSenderMature({from: hodler1});
+    }).then(function(tx) {
+      failOnFoundEvent(tx, 'HodlerIsNowMature');
+    }).then(blockMiner.mineBlocks(anyone, std_blocksUntilMaturity / 2)).then(function() {
+      return contract.setSenderMature({from: hodler1});
+    }).then(function(tx) {
+      findEventByNameOrFail(tx, 'HodlerIsNowMature');
+
+      lighthouse.setPrice(std_minPrice + 1, {from: lighthouseKeeper});
+    }).then(function() {
+      return contract.queryLighthouse({from: anyone});
+
+      return contract.setSenderMature({from: immature1});
+    }).then(function(tx) {
+      failOnFoundEvent(tx, 'HodlerIsNowMature');
+    }).then(blockMiner.mineBlocks(anyone, std_blocksUntilMaturity)).then(function() {
+      return contract.setSenderMature({from: immature1});
+    }).then(function(tx) {
+      failOnFoundEvent(tx, 'HodlerIsNowMature');
+
+      return contract.getStatus.call({});
+    }).then(function(result) {
+      const status = new ClubStatus(result);
+      assert.equal(1, status.numberOfMatureHodlers);
+
+      return contract.setSenderMature({from: founder});
+    }).then(function(tx) {
+      findEventByNameOrFail(tx, 'HodlerIsNowMature');
+
+      return contract.getStatus.call({});
+    }).then(function(result) {
+      const status = new ClubStatus(result);
+      assert.equal(2, status.numberOfMatureHodlers);
+    });
+  });
+});
 
 contract('TheHodlersDotClub', function(accounts) {
   const founder = accounts[0];
@@ -23,11 +104,8 @@ contract('TheHodlersDotClub', function(accounts) {
   const hodler1 = accounts[4];
   let hodler1Maturity;
 
-  const hodler2 = accounts[5];
-  let hodler2Maturity;
-
-  const inmature1 = accounts[6];
-  let inmature1Maturity;
+  const immature1 = accounts[6];
+  let immature1Maturity;
 
   it("leaving early should result in a penalty, but not leaving after", function() {
     let contract;
@@ -55,11 +133,17 @@ contract('TheHodlersDotClub', function(accounts) {
       const evt = findEventByNameOrFail(tx, 'NewPriceFromLighthouse');
       assert.equal(false, evt.args._priceHasBeenReached);
 
+      return contract.joinClub({from: immature1, value: std_minBuyIn});
+    }).then(function(tx) {
+      const evt = findEventByNameOrFail(tx, 'NewHodler');
+      immature1Maturity = evt.args._maturityBlock;
+
       return contract.joinClub({from: hodler1, value: std_minBuyIn});
     }).then(function(tx) {
       const evt = findEventByNameOrFail(tx, 'NewHodler');
       hodler1Maturity = evt.args._maturityBlock;
 
+    }).then(blockMiner.mineBlocks(anyone, std_blocksUntilMaturity)).then(function() {
       return contract.joinClub({from: coward1, value: std_minBuyIn});
     }).then(function(tx) {
       findEventByNameOrFail(tx, 'NewHodler');
@@ -73,7 +157,25 @@ contract('TheHodlersDotClub', function(accounts) {
       assert.equal(web3.toWei(.15, 'ether'), evt.args._sentToAdminPool.valueOf());
       assert.equal(web3.toWei(1.35, 'ether'), evt.args._sentToHodlersPool.valueOf());
       assert.equal(web3.toWei(1.5, 'ether'), evt.args._withdrawn.valueOf());
+
+      return lighthouse.setPrice(std_minPrice + 1, {from: lighthouseKeeper});
+    }).then(function() {
+      return contract.queryLighthouse({from: anyone});
+    }).then(function() {
+
+      return contract.leaveClub({from: immature1});
+    }).then(function(tx) {
+      const evt = findEventByNameOrFail(tx, 'ImmatureHodlerLeftClub');
+      assert.equal(std_minBuyIn, evt.args._withdrawn);
+    }).then(blockMiner.mineBlocks(anyone, std_blocksUntilMaturity)).then(function() {
+
+      return contract.setSenderMature({from: hodler1});
+    }).then(function(tx) {
+      findEventByNameOrFail(tx, 'HodlerIsNowMature');
+      return contract.leaveClub({from: hodler1});
+    }).then(function(tx) {
+      const evt = findEventByNameOrFail(tx, 'HodlerLeftClub');
+      assert.equal(std_minBuyIn, evt.args._withdrawn);
     });
   });
 });
-
