@@ -3,6 +3,7 @@ const Lighthouse = artifacts.require("./PriceInUsdLighthouse.sol");
 
 const blockMiner = require('../testutil/blockminer');
 const ClubStatus = require('../testutil/clubstatus').ClubStatus;
+const HodlerInfo = require('../testutil/clubstatus').HodlerInfo;
 
 const findEventByNameOrFail = require('../testutil/txutil.js').findEventByNameOrFail;
 const failOnFoundEvent = require('../testutil/txutil.js').failOnFoundEvent;
@@ -103,6 +104,7 @@ contract('TheHodlersDotClub', function(accounts) {
 
   const hodler1 = accounts[4];
   let hodler1Maturity;
+  let hodler1Balance;
 
   const immature1 = accounts[6];
   let immature1Maturity;
@@ -118,32 +120,33 @@ contract('TheHodlersDotClub', function(accounts) {
 
       return lighthouse.addKeeper(lighthouseKeeper, {from: founder});
     }).then(function() {
+      return lighthouse.setPrice(75, {from: lighthouseKeeper});
+    }).then(function() {
 
       return contract.foundClub(
           std_minPrice, std_minBuyIn, std_penaltyPercentage, std_blocksUntilMaturity, lighthouse.address,
           {from: founder, value: std_minBuyIn});
-
     }).then(function(tx) {
       findEventByNameOrFail(tx, 'ClubInitialized');
 
-      lighthouse.setPrice(75, {from: lighthouseKeeper});
-    }).then(function() {
       return contract.queryLighthouse({from: anyone});
     }).then(function(tx) {
       const evt = findEventByNameOrFail(tx, 'NewPriceFromLighthouse');
+      assert.equal(75, evt.args._priceInUsdCents);
       assert.equal(false, evt.args._priceHasBeenReached);
-
-      return contract.joinClub({from: immature1, value: std_minBuyIn});
-    }).then(function(tx) {
-      const evt = findEventByNameOrFail(tx, 'NewHodler');
-      immature1Maturity = evt.args._maturityBlock;
 
       return contract.joinClub({from: hodler1, value: std_minBuyIn});
     }).then(function(tx) {
       const evt = findEventByNameOrFail(tx, 'NewHodler');
       hodler1Maturity = evt.args._maturityBlock;
 
-    }).then(blockMiner.mineBlocks(anyone, std_blocksUntilMaturity)).then(function() {
+    }).then(blockMiner.mineBlocks(anyone, std_blocksUntilMaturity - 2)).then(function() {
+
+      return contract.joinClub({from: immature1, value: std_minBuyIn});
+    }).then(function(tx) {
+      const evt = findEventByNameOrFail(tx, 'NewHodler');
+      immature1Maturity = evt.args._maturityBlock;
+
       return contract.joinClub({from: coward1, value: std_minBuyIn});
     }).then(function(tx) {
       findEventByNameOrFail(tx, 'NewHodler');
@@ -161,21 +164,62 @@ contract('TheHodlersDotClub', function(accounts) {
       return lighthouse.setPrice(std_minPrice + 1, {from: lighthouseKeeper});
     }).then(function() {
       return contract.queryLighthouse({from: anyone});
-    }).then(function() {
+    }).then(function(tx) {
+      const evt = findEventByNameOrFail(tx, 'NewPriceFromLighthouse');
+      assert.equal(true, evt.args._priceHasBeenReached);
+
+      return contract.setSenderMature({from: founder});
+    }).then(function(tx) {
+      findEventByNameOrFail(tx, 'HodlerIsNowMature');
 
       return contract.leaveClub({from: immature1});
     }).then(function(tx) {
       const evt = findEventByNameOrFail(tx, 'ImmatureHodlerLeftClub');
       assert.equal(std_minBuyIn, evt.args._withdrawn);
-    }).then(blockMiner.mineBlocks(anyone, std_blocksUntilMaturity)).then(function() {
 
       return contract.setSenderMature({from: hodler1});
     }).then(function(tx) {
-      findEventByNameOrFail(tx, 'HodlerIsNowMature');
-      return contract.leaveClub({from: hodler1});
+      const evt = findEventByNameOrFail(tx, 'HodlerIsNowMature');
+      assert.equal(2, evt.args._numberOfMatureHodlers);
+
+      return contract.getHodlerInfo(hodler1);
+    }).then(function(result) {
+      const hodlerInfo = new HodlerInfo(result);
+      assert.equal(true, hodlerInfo.isMature);
+      assert.equal(std_minBuyIn, hodlerInfo.hodling);
+
+      hodler1Balance = web3.eth.getBalance(hodler1);
+
+      return contract.leaveClub({from: hodler1, gasPrice: web3.toWei(1.5, 'gwei')});
     }).then(function(tx) {
       const evt = findEventByNameOrFail(tx, 'HodlerLeftClub');
-      assert.equal(std_minBuyIn, evt.args._withdrawn);
+
+      assert.equal(std_minBuyIn, evt.args._hodling);
+      assert.equal(
+          web3.toBigNumber("675000000000000000").valueOf(),
+          evt.args._bonus.valueOf());
+
+      let gasPrice = web3.toWei(1.5, 'gwei');
+      let costOfGas = gasPrice * tx.receipt.gasUsed;
+      const expected = hodler1Balance
+          .add(evt.args._hodling)
+          .add(evt.args._bonus)
+          .sub(costOfGas);
+      assert.equal(expected.valueOf(), web3.eth.getBalance(hodler1).valueOf());
+
+      return contract.leaveClub({from: founder, gasPrice: web3.toWei(1.5, 'gwei')});
+    }).then(function(tx) {
+      const evt = findEventByNameOrFail(tx, 'HodlerLeftClub');
+
+      assert.equal(founder, evt.args._hodler);
+      assert.equal(std_minBuyIn, evt.args._hodling);
+      assert.equal(
+          web3.toBigNumber("675000000000000000").valueOf(),
+          evt.args._bonus.valueOf());
+
+      return contract.leaveClub({from: hodler1, gasPrice: web3.toWei(1.5, 'gwei')})
+          .then(assert.fail)
+          .catch(expectedCatch);
     });
   });
 });

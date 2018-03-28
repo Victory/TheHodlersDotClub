@@ -92,9 +92,9 @@ contract TheHodlersDotClub {
         lighthouse = _lighthouse;
         founded = true;
 
-        queryLighthouse();
-
         ClubInitialized(msg.sender, minPrice, minBuyIn, penaltyPercentage, blocksUntilMaturity, lighthouse);
+
+        queryLighthouse();
 
         joinClub();
     }
@@ -165,11 +165,10 @@ contract TheHodlersDotClub {
             return;
         }
 
-        uint bonus = hodlersPool * (1 / (numberOfMatureHodlers));
-        hodlersPool -= bonus;
+        uint bonus = hodlersPool / numberOfMatureHodlers;
         uint toSend = hodling + bonus;
         msg.sender.transfer(toSend);
-        HodlerLeftClub(msg.sender, numberOfHodlers, hodlersPool);
+        HodlerLeftClub(msg.sender, hodling, bonus);
     }
 
     function queryLighthouse()
