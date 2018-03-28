@@ -66,18 +66,17 @@ contract('TheHodlersDotClub', function(accounts) {
     }).then(function(tx) {
       findEventByNameOrFail(tx, 'HodlerIsNowMature');
 
-      lighthouse.setPrice(std_minPrice + 1, {from: lighthouseKeeper});
+      return lighthouse.setPrice(std_minPrice + 1, {from: lighthouseKeeper});
     }).then(function() {
-      return contract.queryLighthouse({from: anyone});
+      return contract.setSenderMature({from: immature1});
+    }).then(function(tx) {
+      failOnFoundEvent(tx, 'HodlerIsNowMature');
 
       return contract.setSenderMature({from: immature1});
     }).then(function(tx) {
       failOnFoundEvent(tx, 'HodlerIsNowMature');
+
     }).then(blockMiner.mineBlocks(anyone, std_blocksUntilMaturity)).then(function() {
-      return contract.setSenderMature({from: immature1});
-    }).then(function(tx) {
-      failOnFoundEvent(tx, 'HodlerIsNowMature');
-
       return contract.getStatus.call({});
     }).then(function(result) {
       const status = new ClubStatus(result);
