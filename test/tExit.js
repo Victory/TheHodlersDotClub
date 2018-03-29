@@ -95,7 +95,8 @@ contract('TheHodlersDotClub', function(accounts) {
 });
 
 contract('TheHodlersDotClub', function(accounts) {
-  const founder = accounts[0];
+  const admin = accounts[0];
+  const founder = accounts[9];
   const lighthouseKeeper = accounts[1];
   const anyone = accounts[2];
   const coward1 = accounts[3];
@@ -117,7 +118,7 @@ contract('TheHodlersDotClub', function(accounts) {
     }).then(function (instance) {
       lighthouse = instance;
 
-      return lighthouse.addKeeper(lighthouseKeeper, {from: founder});
+      return lighthouse.addKeeper(lighthouseKeeper, {from: admin});
     }).then(function() {
       return lighthouse.setPrice(75, {from: lighthouseKeeper});
     }).then(function() {
@@ -220,7 +221,16 @@ contract('TheHodlersDotClub', function(accounts) {
           .then(assert.fail)
           .catch(expectedCatch);
     }).then(function() {
-      assert.equal(0, contract.balance);
+
+      return contract.getStatus.call({});
+    }).then(function(result) {
+      const status = new ClubStatus(result);
+      assert.equal(web3.toBigNumber('150000000000000000').valueOf(), status.adminPool.valueOf());
+      assert.equal(web3.toBigNumber('1350000000000000000').valueOf(), status.hodlersPool.valueOf());
+
+      return contract.adminWithdraw({from: admin});
+    }).then(function() {
+      assert.equal(0, web3.eth.getBalance(contract.address).valueOf());
     });
   });
 });
