@@ -11,6 +11,8 @@ instance.ClubStatus = function(result) {
   this.adminPool = result[7];
   this.hodlersPool = result[8];
   this.numberOfMatureHodlers = result[9];
+  this.isDisbanded = result[10];
+  this.numberOfVotesToDisband = result[11];
 };
 
 instance.HodlerInfo = function(result) {

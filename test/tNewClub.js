@@ -52,6 +52,8 @@ contract('TheHodlersDotClub', function(accounts) {
       assert.equal(0, status.adminPool);
       assert.equal(0, status.hodlersPool);
       assert.equal(0, status.numberOfMatureHodlers);
+      assert.equal(0, status.numberOfVotesToDisband);
+      assert.equal(false, status.isDisbanded);
     });
   });
 });

@@ -14,6 +14,8 @@ contract TheHodlersDotClub {
         bool isMature;
     }
 
+    address admin;
+
     address founder;
     uint minPrice;
     uint minBuyIn;
@@ -33,12 +35,18 @@ contract TheHodlersDotClub {
     bool priceHasBeenReached = false;
     uint priceReachedBlock = 0;
 
+    mapping(address => bool) disbandVotes;
+    uint numberOfVotesToDisband;
+    bool isDisbanded;
+
     // how man coins have been left by cowards going to the hodlers
     uint hodlersPool;
     // how man coins have been left by cowards going to the admin
     uint adminPool;
 
-    function TheHodlersDotClub() {}
+    function TheHodlersDotClub() {
+        admin = msg.sender;
+    }
 
     modifier onlyIfNotFounded()
     {
@@ -68,6 +76,8 @@ contract TheHodlersDotClub {
     event CowardLeftClub(address _coward, uint _sentToAdminPool, uint _sentToHodlersPool, uint _withdrawn);
     event ImmatureHodlerLeftClub(address _hodler, uint _withdrawn);
     event HodlerLeftClub(address _hodler, uint _hodling, uint _bonus);
+
+    event VoteToDisband(address _hodler, bool _votedToDisband, uint _numberOfVotesToDisband, uint _numberNeededToDisband, bool _isDisbanded);
 
     function foundClub(
         uint _minPrice,
@@ -140,9 +150,17 @@ contract TheHodlersDotClub {
         setMature(msg.sender);
 
         uint hodling = hodlers[msg.sender].hodling;
+        bool isMature = hodlers[msg.sender].isMature;
         hodlers[msg.sender].hodling = 0;
         hodlers[msg.sender].blockJoined = 0;
+        hodlers[msg.sender].isMature = false;
         numberOfHodlers -= 1;
+
+        if (isDisbanded) {
+            msg.sender.transfer(hodling);
+            HodlerLeftClub(msg.sender, hodling, 0);
+            return;
+        }
 
         // a cowards exit
         if (!priceHasBeenReached) {
@@ -159,7 +177,7 @@ contract TheHodlersDotClub {
         }
 
         // immature hodler, no penalty no bonus
-        if (!hodlers[msg.sender].isMature) {
+        if (!isMature) {
             msg.sender.transfer(hodling);
             ImmatureHodlerLeftClub(msg.sender, hodling);
             return;
@@ -210,6 +228,49 @@ contract TheHodlersDotClub {
         setMature(msg.sender);
     }
 
+    function voteToDisband(bool _votedToDisband)
+    public
+    {
+        if (isDisbanded || disbandVotes[msg.sender] == _votedToDisband) {
+            return;
+        }
+
+        require(msg.sender == founder || hodlers[msg.sender].isMature);
+
+        uint numberNeededToDisband = numberOfHodlers / 2;
+
+        if (_votedToDisband) {
+            numberOfVotesToDisband += 1;
+        } else if (!_votedToDisband && numberOfVotesToDisband > 0) {
+            numberOfVotesToDisband -= 1;
+        }
+
+        isDisbanded = numberNeededToDisband <= numberOfVotesToDisband;
+        disbandVotes[msg.sender] = _votedToDisband;
+        if (isDisbanded) {
+            adminPool += hodlersPool;
+            hodlersPool = 0;
+        }
+
+        VoteToDisband(msg.sender, _votedToDisband, numberOfVotesToDisband, numberNeededToDisband, isDisbanded);
+    }
+
+    function newAdmin(address _newAdmin)
+    public
+    {
+        require(admin == msg.sender);
+        admin = _newAdmin;
+    }
+
+    function adminWithdraw()
+    public
+    {
+        require(admin == msg.sender);
+        uint toSend = adminPool;
+        adminPool = 0;
+        admin.transfer(toSend);
+    }
+
     function getHodlers()
     public
     constant
@@ -217,6 +278,7 @@ contract TheHodlersDotClub {
     {
         return hodlerAddresses;
     }
+
 
     function getHodlerInfo(address _hodler)
     public
@@ -255,7 +317,10 @@ contract TheHodlersDotClub {
         address _lighthouse,
         uint _adminPool,
         uint _hodlersPool,
-        uint _numberOfMatureHodlers
+        uint _numberOfMatureHodlers,
+        bool _isDisbanded,
+        uint _numberOfVotesToDisband,
+        address _admin
     )
     {
         _minPrice = minPrice;
@@ -268,5 +333,9 @@ contract TheHodlersDotClub {
         _adminPool = adminPool;
         _hodlersPool = hodlersPool;
         _numberOfMatureHodlers = numberOfMatureHodlers;
+        _isDisbanded = isDisbanded;
+        _numberOfVotesToDisband = numberOfVotesToDisband;
+        _admin = admin;
+
     }
 }

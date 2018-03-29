@@ -28,13 +28,13 @@ contract('TheHodlersDotClub', function(accounts) {
   const immature1 = accounts[6];
   let immature1Maturity;
 
-  it("should allow setting maturity", function () {
+  it("should allow setting maturity", function() {
     let contract;
     let lighthouse;
-    return TheHodlersDotClub.deployed().then(function (instance) {
+    return TheHodlersDotClub.deployed().then(function(instance) {
       contract = instance;
       return Lighthouse.deployed();
-    }).then(function (instance) {
+    }).then(function(instance) {
       lighthouse = instance;
 
       return lighthouse.addKeeper(lighthouseKeeper, {from: founder});
@@ -219,6 +219,8 @@ contract('TheHodlersDotClub', function(accounts) {
       return contract.leaveClub({from: hodler1, gasPrice: web3.toWei(1.5, 'gwei')})
           .then(assert.fail)
           .catch(expectedCatch);
+    }).then(function() {
+      assert.equal(0, contract.balance);
     });
   });
 });
