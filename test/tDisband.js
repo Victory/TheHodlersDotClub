@@ -3,10 +3,8 @@ const Lighthouse = artifacts.require("./PriceInUsdLighthouse.sol");
 
 const blockMiner = require('../testutil/blockminer');
 const ClubStatus = require('../testutil/clubstatus').ClubStatus;
-const HodlerInfo = require('../testutil/clubstatus').HodlerInfo;
 
 const findEventByNameOrFail = require('../testutil/txutil.js').findEventByNameOrFail;
-const failOnFoundEvent = require('../testutil/txutil.js').failOnFoundEvent;
 
 const expectedCatch = function() {
   assert.isOk(true);
