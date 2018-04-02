@@ -89,11 +89,20 @@ public class App {
       CoinData coinData = CoinMarketCapCoinData.fromJson(jsonString);
       System.out.println("Price: " + coinData.getPrice());
 
+      BigInteger gasPrice = Convert.toWei("3", Convert.Unit.GWEI).toBigInteger();
+      lighthouse.setGasPrice(gasPrice);
+
       try {
         lighthouse.setPrice(coinData.getPrice()).send();
       } catch (Exception e) {
-        // TODO: do an error countdown drawback, etc...
-        e.printStackTrace();
+        BigInteger increment = Convert.toWei("1", Convert.Unit.GWEI).toBigInteger();
+        lighthouse.setGasPrice(lighthouse.getGasPrice().add(increment));
+
+        try {
+          lighthouse.setPrice(coinData.getPrice()).send();
+        } catch (Exception e1) {
+          e1.printStackTrace();
+        }
       }
     }
   }
