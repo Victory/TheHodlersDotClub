@@ -1,10 +1,7 @@
 pragma solidity 0.4.15;
 
-//import './PriceInUsdLighthouse.sol';
+import './PriceInUsdLighthouse.sol';
 
-contract Lighthouse {
-    function getPrice() public constant returns (uint);
-}
 
 contract TheHodlersDotClub {
     struct Hodler {
@@ -92,7 +89,8 @@ contract TheHodlersDotClub {
         require(
             _penaltyPercentage <= 450
             && _penaltyPercentage >= 10
-            && _minBuyIn >= 1 ether);
+            && _minBuyIn >= 1 ether
+            && msg.value >= _minBuyIn);
 
         founder = msg.sender;
         minPrice = _minPrice;
@@ -192,7 +190,7 @@ contract TheHodlersDotClub {
     function queryLighthouse()
     public
     {
-        Lighthouse lh = Lighthouse(lighthouse);
+        PriceInUsdLighthouse lh = PriceInUsdLighthouse(lighthouse);
         curPriceInUsdCents = lh.getPrice();
 
         if (curPriceInUsdCents >= minPrice) {
