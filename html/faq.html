@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Terms</title>
+</head>
+<body>
+
+    <h3>Terminology and FAQ</h3>
+    <ol>
+      <li><strong>Hodler</strong> -
+         a person who stays in the club until the target price is reached. They can be a "Mature Hodler" or
+        an "Immature Hodler."
+      </li>
+
+      <li><strong>Founder</strong> -
+        the person who created the contract (also a Hodler).
+      </li>
+
+      <li><strong>Coward</strong> -
+        a person who leaves the club before the price is reached (leaving behind some percentage of coins).
+      </li>
+
+      <li><strong>Baddie</strong> -
+        a person who tries to game the system by joining the club just before the target price is reached
+        to get the coins left by cowards.
+      </li>
+
+
+      <li><strong>Mature Hodler</strong> -
+        a Hodler who has been marked or has marked themselves mature, which can only be done after a certain
+        number of blocks. (This is to Prevent baddies).
+      </li>
+
+      <li><strong>Immature Hodler</strong> -
+        a Hodler who is not been marked mature.
+      </li>
+      <li><strong>Admin</strong>
+        the admin gets a small percentage of coins left by cowards.
+      </li>
+    </ol>
+
+    <h3>About the Lighthouse:</h3>
+
+    <p>
+      The price is monitored by a <strong>Lighthouse</strong> contract. A Lighthouse is a type of oracle.
+      The Lighthouse contract has the price of <span c-network-units></span> in USD pushed to it periodically by
+      third party volunteers who run the Lighthouse's Java application.
+    </p>
+
+    <p>
+      In this way anyone can query the Lighthouse to see if the current prices is greater or equal to the <strong>target price</strong>
+      (this only has to happen once). The Lighthouse MUST be queried from the hodlers club contract when the
+      current price greater than or equal to the <strong>target price.</strong>.
+    </p>
+
+    <p>
+      The club can also be <strong>disbanded</strong> if 50% of the members vote to disband.
+      A reason for disbanding is because the Lighthouse is no longer reliable.
+      Only those marked Mature can vote. If the club is disbanded there is no penalty or reward for leaving the club.
+    </p>
+
+</body>
+</html>

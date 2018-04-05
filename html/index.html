@@ -3,35 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <title>A Community for Hodlers</title>
+
+  <link rel="stylesheet" href="css/typebase.css">
+  <link href="css/style.css" rel="stylesheet">
+
 </head>
 <body>
 
-<div class="header-box">
-  <div class="header-item">
-    <h3>Welcome HoldOnHoldOn a Hodlers Club</h3>
-  </div>
-</div>
 
-<div class="tagline-box">
-  <div class="tagline-item">
+<div class="how-it-works-header-box">
+  <div class="how-it-works-header-item">
+    <div class="header-box">
+      <div class="header-item">
+        <h3>Welcome To the Hodlers Club</h3>
+      </div>
+    </div>
+
+    <div class="tagline-box">
+      <div class="tagline-item">
+        <small>Where Mature Hodlers get Cowards Coins</small>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="how-it-works-header-box">
   <div class="how-it-works-header-item">
+    <p>
+      A hodlers club is a smart contract (DApp) which lets you lock up your <span c-network-units></span>
+      until a target price in USD is reached. The Dapp is designed for anyone who wishes to avoid impulse
+      selling because of FUD.
+      "Cowards" who leave the club before the price is reached, leave behind a small
+      percentage of their <span c-network-units></span> which is shared amongst the "Mature Hodlers" (e.g. hodlers
+      who have waited for the target price to be reached).
+      So by joining the club, you can hodl your coins until they Moon and maybe get a few extra coins if Cowards
+      leave.
+    </p>
+
+    <h3>How it Works</h3>
+    <p>
+      First someone will create a new hodlers club contract. A club will
+      have a <strong>target price</strong> in USD, a <strong>minimum buy in</strong>
+      in <span c-network-units></span>, <strong>penalty percentage</strong> for
+      how much <span c-network-units></span> is left behind by Cowards and the <strong>number of blocks until maturity</strong>.
+    </p>
+
+    <p>
+      There is or will be many hodlers clubs on this site all marked for different target prices, penalties, etc...
+    </p>
+
+    <p>
+      Other people will join the club by sending the <strong>minimum buy in</strong> to become new members.
+      New members are called "Immature Hodlers." Each Immature Hodler has to wait at least the
+      <strong>number of blocks until maturity</strong> to then mark themselves as mature by clicking the
+      "Mark as Mature" button. <small>In fact anyone can mark anyone else as mature after the right
+      number of blocks and its nice if club members help each other in this way.</small>
+    </p>
+
+    <p>
+      Club member can always add more coins to their initial hodlings.
+    </p>
+
+    <p>
+      Any member who leaves the club before the target price is reached is a <strong>Coward</strong> and leaves
+      behind <strong>penalty percentage</strong> of their hodlings to be shared between the
+      <strong>Mature Hodlers</strong> and the <strong>Admin</strong>.
+    </p>
+
+    <p>
+      Once the target is reached, everyone still in the club is a "Hodler" and will be able to withdraw all
+      of the coins they put into the contract without penalty. Those that are marked mature will also share
+      any coins left by <strong>Coward</strong>s.
+    </p>
+
+
   </div>
 </div>
 
 <form class="pact-form" c-create-pact>
   <label>
     <p>Min Price: </p>
-    <p class="pact-form-explanation">The minimum number of <span c-units></span> to join this club</p>
+    <p class="pact-form-explanation">The minimum number of <span c-network-units></span> to join this club</p>
     <input type="number" name="minPrice" />
   </label>
 
   <label>
-    <p>Minimum Buy in (<span c-units></span>):</p>
-    <p class="pact-form-explanation">The smallest amount of <span c-units></span> alowed to join this club.
+    <p>Minimum Buy in (<span c-network-units></span>):</p>
+    <p class="pact-form-explanation">The smallest amount of <span c-network-units></span> allowed to join this club.
       Lower Buy ins can attract more members but can also be easier for badies to manipulate.</p>
     <input type="number" name="minBuyIn" />
   </label>
@@ -39,7 +97,7 @@
   <label>
     <p>Penalty Percentage:</p>
     <p class="pact-form-explanation">Percentage of <span class="coward">coward's</span>
-      <span c-units></span>  will lose if they leave before the Min Price is reached.</p>
+      <span c-network-units></span>  will lose if they leave before the Min Price is reached.</p>
     <input type="number" name="minBuyIn" />
   </label>
 
@@ -49,9 +107,10 @@
     <input type="number" name="minPrice" />
   </label>
 
-  <button type="button">Create Pact</button>
+  <button type="button">Found Club</button>
 </form>
 
+<script src="js/jquery.min.js"></script>
 <script src="js/home.js"></script>
 
 </body>
