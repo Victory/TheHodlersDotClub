@@ -2,13 +2,13 @@ pragma solidity 0.4.15;
 
 import './TheHodlersDotClub.sol';
 
-contract ClubFactory {
+contract TheHodlersDotClubFactory {
     address[] clubs;
     address admin;
 
     event ClubCreated(address _founder, address _admin, address _club);
 
-    function ClubFactory()
+    function TheHodlersDotClubFactory()
     public
     {
         admin = msg.sender;

@@ -1,5 +1,5 @@
 const TheHodlersDotClub = artifacts.require("./TheHodlersDotClub.sol");
-const ClubFactory = artifacts.require("./ClubFactory.sol");
+const ClubFactory = artifacts.require("./TheHodlersDotClubFactory.sol");
 const Lighthouse = artifacts.require("./PriceInUsdLighthouse.sol");
 
 const findEventByNameOrFail = require('../testutil/txutil.js').findEventByNameOrFail;

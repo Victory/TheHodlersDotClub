@@ -61,7 +61,7 @@
     </p>
 
     <p>
-      Club member can always add more coins to their initial hodlings.
+      Note: Club member can always add more coins to their initial hodlings and there is no fee to join a club.
     </p>
 
     <p>
@@ -80,37 +80,134 @@
   </div>
 </div>
 
-<form class="pact-form" c-create-pact>
-  <label>
-    <p>Min Price: </p>
-    <p class="pact-form-explanation">The minimum number of <span c-network-units></span> to join this club</p>
-    <input type="number" name="minPrice" />
-  </label>
+<div class="how-it-works-header-box">
+  <div class="how-it-works-header-item">
 
-  <label>
-    <p>Minimum Buy in (<span c-network-units></span>):</p>
-    <p class="pact-form-explanation">The smallest amount of <span c-network-units></span> allowed to join this club.
-      Lower Buy ins can attract more members but can also be easier for badies to manipulate.</p>
-    <input type="number" name="minBuyIn" />
-  </label>
+    <h3>Step 1: Publish Contract</h3>
+    <form class="pact-form" c-create-contract>
+      <button type="button" c-create-contract-button>Publish New Contract</button>
+    </form>
 
-  <label>
-    <p>Penalty Percentage:</p>
-    <p class="pact-form-explanation">Percentage of <span class="coward">coward's</span>
-      <span c-network-units></span>  will lose if they leave before the Min Price is reached.</p>
-    <input type="number" name="minBuyIn" />
-  </label>
+    <h3>Step 2: Set Parameters</h3>
+    <form class="pact-form" c-create-pact>
+      <label>
+        Club Address:
+          <span c-info>
+            <sup c-info-icon>&#x1f6c8;</sup>
+            <span class="hide" c-info-info>The Address of your club's contract (generally filled in automatically
+              from step 1).
+            </span>
+          </span>
+        <br>
+        <input type="number" name="minPrice" />
+      </label>
 
-  <label>
-    <p>Blocks Until Maturity</p>
-    <p class="pact-form-explanation">How many blocks until a member becomes an full member.</p>
-    <input type="number" name="minPrice" />
-  </label>
 
-  <button type="button">Found Club</button>
-</form>
+      <label>
+        Target Price (USD):
+          <span c-info>
+            <sup c-info-icon>&#x1f6c8;</sup>
+            <span class="hide" c-info-info>The minimum value in USD for one <span c-network-units></span>.
+              Once this price is met anyone can leave the club without penalty and possibly with a bonus.</span>
+          </span>
+        <br>
+        <input type="number" name="minPrice" />
+      </label>
+
+      <label>
+        Minimum Buy In (<span c-network-units></span>):
+        <span c-info>
+            <sup c-info-icon>&#x1f6c8;</sup>
+            <span class="hide" c-info-info>The minimum number of <span c-network-units></span> to join this club. More
+              <span c-network-units></span> can always be added later.
+            </span>
+          </span>
+        <br>
+        <input type="number" name="minBuyIn" />
+      </label>
+
+      <label>
+        Penalty Percentage:
+        <span c-info>
+            <sup c-info-icon>&#x1f6c8;</sup>
+            <span class="hide" c-info-info>The Percentage of <span c-network-units></span> left in the contract
+              when Cowards leave. This percentage is shared between Mature Hodlers and is in addition to the 5% for
+              the Admin.
+            </span>
+          </span>
+        <br>
+        <input type="number" name="penaltyPercentage" />
+      </label>
+
+      <label>
+        Blocks Until Maturity:
+        <span c-info>
+            <sup c-info-icon>&#x1f6c8;</sup>
+            <span class="hide" c-info-info>
+              How many blocks until a member can be marked as
+              mature (possibly entitling them to bonus <span c-network-units></span> ).
+            </span>
+          </span>
+        <br>
+        <input type="number" name="penaltyPercentage" />
+      </label>
+
+      <label>
+        Lighthouse Address:
+        <span c-info>
+            <sup c-info-icon>&#x1f6c8;</sup>
+            <span class="hide" c-info-info>
+              Only change this if you really know what you are doing.
+            </span>
+          </span>
+        <br>
+        <input type="number" name="penaltyPercentage" />
+      </label>
+
+      <button type="button">Found Club</button>
+    </form>
+
+
+    <h3>Step 3: View and Invite Others to Your Club</h3>
+
+    <form class="pact-form" c-create-contract>
+      <label>
+        Club Address:
+        <span c-info> <sup c-info-icon>&#x1f6c8;</sup>
+        <span class="hide" c-info-info>The Address of your club's contract (generally filled in automatically
+              from step 1).
+        </span>
+      </span>
+        <br>
+        <input type="number" name="contractAddress" />
+      </label>
+
+      <button type="button">View Club</button>
+    </form>
+  </div>
+</div>
+
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="txModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Transaction Sent</h4>
+      </div>
+      <div class="modal-body">
+        <p>TxHash: <span thcd-tx></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal txModal -->
 
 <script src="js/jquery.min.js"></script>
+<script src="js/thdc.js"></script>
 <script src="js/home.js"></script>
 
 </body>
