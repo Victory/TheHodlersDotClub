@@ -41,7 +41,7 @@ input {
     margin-top: 5px;
     padding-left: 3px;
     width: 100%;
-    font-size: 2em;
+    font-size: 1.2em;
     line-height: 1.2em;
     color: rgba( 67,135,123,1);
     background: #e0e0ff;
@@ -85,7 +85,6 @@ button:hover {
 }
 
 .modal {
-    /* display: none; */
     position: fixed;
     z-index: 1;
     left: 0;
@@ -114,4 +113,8 @@ button:hover {
 
 .modal h4 {
     margin-top: 5px;
+}
+
+th, td {
+    border: 1px solid black;
 }

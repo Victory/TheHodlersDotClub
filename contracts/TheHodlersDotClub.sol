@@ -3,6 +3,7 @@ pragma solidity 0.4.15;
 import './PriceInUsdLighthouse.sol';
 
 
+// TODO Default function
 contract TheHodlersDotClub {
     struct Hodler {
         uint blockJoined;

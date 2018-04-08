@@ -1,3 +1,4 @@
+/*
 var network = {
   longName: 'Pirl',
   units: 'PIRL',
@@ -6,7 +7,18 @@ var network = {
   explorerHome: 'https://poseidon.pirl.io/',
   explorerAddr: 'https://poseidon.pirl.io/explorer/address/',
   explorerTx: 'https://poseidon.pirl.io/explorer/transaction/',
+};
+*/
 
+var network = {
+  longName: 'TEST NET',
+  //units: 'PIRL <sup>(Ropsten)</sup>',
+  units: 'PIRL', // FIXME
+  net: 'https://node.kickthecoin.com/ropsten',
+  number: '3',
+  explorerHome: 'https://ropsten.etherscan.io/',
+  explorerAddr: 'https://ropsten.etherscan.io/address/',
+  explorerTx: 'https://ropsten.etherscan.io/tx/'
 };
 
 var contracts = {
@@ -60,8 +72,6 @@ window.addEventListener('load', function() {
     $('[c-net]').html(network.net);
     $('[c-explorer-home]').attr('href', network.explorerHome);
 
-    var contract = web3.eth.contract(contracts.factory.abi);
-    window.ClubFactory = contract.at(contracts.factory.address);
   });
 
 
@@ -73,4 +83,19 @@ window.addEventListener('load', function() {
     $(this).find('[c-info-info]').addClass('hide');
   });
 });
+
+var ClubStatus = function(result) {
+  this.minPrice = result[0];
+  this.minBuyIn = result[1];
+  this.penaltyPercentage = result[2];
+  this.blocksUntilMaturity = result[3];
+  this.founded = result[4];
+  this.priceHasBeenReached = result[5];
+  this.lighthouse = result[6];
+  this.adminPool = result[7];
+  this.hodlersPool = result[8];
+  this.numberOfMatureHodlers = result[9];
+  this.isDisbanded = result[10];
+  this.numberOfVotesToDisband = result[11];
+};
 

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>A Community for Hodlers</title>
+
+  <link rel="stylesheet" href="css/typebase.css">
+  <link href="css/style.css" rel="stylesheet">
+
+</head>
+<body>
+
+
+
+<div class="how-it-works-header-box">
+  <div class="how-it-works-header-item">
+    <div class="header-box">
+      <div class="header-item">
+        <h3>You are Viewing Club </h3>
+        <h4 c-club-address></h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="how-it-works-header-box">
+  <div class="how-it-works-header-item">
+    <button type="button" c-join-club>Join Club</button>
+
+    <table>
+      <tr><th>Target Price</th><td c-club-info="minPrice"></td></tr>
+      <tr><th>Min Buy In</th><td c-club-info="minBuyIn"></td></tr>
+      <tr><th>Penalty</th><td c-club-info="penaltyPercentage"></td></tr>
+      <tr><th>Blocks Until Maturity</th><td c-club-info="blocksUntilMaturity"></td></tr>
+      <tr><th>Founded</th><td c-club-info="founded"></td></tr>
+      <tr><th>Price Has Been Reached</th><td c-club-info="priceHasBeenReached"></td></tr>
+      <tr><th></th><td c-club-info="lighthouse"></td></tr>
+      <tr><th></th><td c-club-info="adminPool"></td></tr>
+      <tr><th></th><td c-club-info="hodlersPool"></td></tr>
+      <tr><th></th><td c-club-info="numberOfMatureHodlers"></td></tr>
+      <tr><th></th><td c-club-info="isDisbanded"></td></tr>
+      <tr><th></th><td c-club-info="numberOfVotesToDisband"></td></tr>
+      <tr><th></th><td c-club-info="admin"></td></tr>
+    </table>
+
+  </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/thdc.js"></script>
+<script src="js/home.js"></script>
+<script src="js/club.js"></script>
+</body>
+</html>

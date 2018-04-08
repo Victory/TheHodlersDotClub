@@ -89,7 +89,7 @@
     </form>
 
     <h3>Step 2: Set Parameters</h3>
-    <form class="pact-form" c-create-pact>
+    <form class="pact-form" c-found-club>
       <label>
         Club Address:
           <span c-info>
@@ -99,9 +99,10 @@
             </span>
           </span>
         <br>
-        <input type="number" name="minPrice" />
+        <!-- debug value set -->
+        <input type="text" name="clubAddress"
+               value="0x9de038d83ac1dc7f3b483f3c7736baee6dacf5ce" />
       </label>
-
 
       <label>
         Target Price (USD):
@@ -111,7 +112,9 @@
               Once this price is met anyone can leave the club without penalty and possibly with a bonus.</span>
           </span>
         <br>
-        <input type="number" name="minPrice" />
+        <input type="number" name="targetPrice"
+               value="0.45"
+          />
       </label>
 
       <label>
@@ -123,7 +126,9 @@
             </span>
           </span>
         <br>
-        <input type="number" name="minBuyIn" />
+        <input type="number" name="minBuyIn"
+               value="1.5"
+        />
       </label>
 
       <label>
@@ -136,7 +141,9 @@
             </span>
           </span>
         <br>
-        <input type="number" name="penaltyPercentage" />
+        <input type="number" name="penaltyPercentage"
+               value="10"
+        />
       </label>
 
       <label>
@@ -146,10 +153,13 @@
             <span class="hide" c-info-info>
               How many blocks until a member can be marked as
               mature (possibly entitling them to bonus <span c-network-units></span> ).
+              Each block should take about 13 seconds. A month is about 200,000 blocks.
             </span>
           </span>
         <br>
-        <input type="number" name="penaltyPercentage" />
+        <input type="number" name="blocksUntilMaturity"
+               value="50"
+        />
       </label>
 
       <label>
@@ -161,16 +171,16 @@
             </span>
           </span>
         <br>
-        <input type="number" name="penaltyPercentage" />
+        <input type="text" name="lighthouse" />
       </label>
 
-      <button type="button">Found Club</button>
+      <button type="button" c-found-club-button>Found Club</button>
     </form>
 
 
     <h3>Step 3: View and Invite Others to Your Club</h3>
 
-    <form class="pact-form" c-create-contract>
+    <form action="club.html" class="pact-form" c-create-contract>
       <label>
         Club Address:
         <span c-info> <sup c-info-icon>&#x1f6c8;</sup>
@@ -179,26 +189,28 @@
         </span>
       </span>
         <br>
-        <input type="number" name="contractAddress" />
+        <input type="text" name="contractAddress"
+               value="0x9de038d83ac1dc7f3b483f3c7736baee6dacf5ce"
+        />
       </label>
 
-      <button type="button">View Club</button>
+      <button type="submit">View Club</button>
     </form>
   </div>
 </div>
 
 
 
-<div class="modal fade" tabindex="-1" role="dialog" id="txModal">
+<div class="modal fade hide" tabindex="-1" role="dialog" id="txModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" aria-label="Close">
+        <button type="button" class="close" aria-label="Close" data-dismiss="modal">
           <span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title">Transaction Sent</h4>
       </div>
       <div class="modal-body">
-        <p>TxHash: <span thcd-tx></span></p>
+        <p>TxHash: <span thdc-tx></span></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

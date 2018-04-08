@@ -17,6 +17,7 @@ const std_minBuyIn = web3.toWei(3, 'ether');
 const std_penaltyPercentage = 450; // 45%
 const std_blocksUntilMaturity = 40;
 
+// TODO Test for coward leaves, and the price is reached before anyone could be mature
 contract('TheHodlersDotClub', function(accounts) {
   const founder = accounts[0];
   const lighthouseKeeper = accounts[1];
