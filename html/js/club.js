@@ -15,14 +15,14 @@ var getAddressFromQuery = function() {
   return (addr.match(/^0x[0-9a-f]+$/) && addr.length == 42) ? addr : undefined;
 };
 
+var showTxModal;
 jQuery(function($) {
 
   var $txModal = $("#txModal");
-  var showTxModal = function(tx) {
+  showTxModal = function(tx) {
     $txModal.find('[thdc-tx]').html(THDC.utils.linkToTx(tx));
     $txModal.removeClass('hide');
   };
-
 
   var clubAddress = getAddressFromQuery();
   if (!clubAddress) {

@@ -71,6 +71,7 @@ window.addEventListener('load', function() {
     $('[c-network-units]').html(network.units);
     $('[c-net]').html(network.net);
     $('[c-explorer-home]').attr('href', network.explorerHome);
+    blockTime.init(1000);
 
   });
 

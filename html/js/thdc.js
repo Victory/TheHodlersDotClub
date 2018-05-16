@@ -2,6 +2,24 @@ THDC = {
   utils: {}
 };
 
+// == jQuery plugins ==
+(function($) {
+  $.fn.vModal = function(action) {
+
+    if (action === undefined) {
+      this.addClass('hide');
+    } else if (action === "show") {
+      this.removeClass('hide');
+    } else if (action === "hide") {
+      this.addClass('hide');
+    }
+
+    return this;
+  };
+}(jQuery));
+
+
+// == misc functions ==
 function onError(err) {
   if (err === null) return;
   try {
@@ -44,10 +62,16 @@ THDC.utils.linkToAddress = function(address) {
   }).prop("thdc-wallet-address", true);
 };
 
+var showTxModal = function(tx) {
+  var $txModal = $("#txModal");
+  $txModal.find('[thdc-tx]').html(THDC.utils.linkToTx(tx));
+  $txModal.vModal("show");
+};
+
+// == global bindings ==
 $('body').on('click', '[data-dismiss=modal]', function () {
   $(this).parents('.modal').addClass('hide');
 });
-
 
 $('body').on('click', '.modal', function (evt) {
   var $target = $(evt.target);
@@ -55,7 +79,6 @@ $('body').on('click', '.modal', function (evt) {
     $(this).addClass('hide');
   }
 });
-
 
 $('body').on('click', '[c-create-contract-button]', function() {
   var contract = web3.eth.contract(contracts.factory.abi);
@@ -79,7 +102,6 @@ $('body').on('click', '[c-found-club-button]', function() {
   var blocksUntilMaturity = parseInt($form.find('[name=blocksUntilMaturity]').val());
   var lighthouse = $form.find('[name=lighthouse]').val();
 
-  debugger;
 
   var contract = web3.eth.contract(contracts.club.abi);
   var Club = contract.at(clubAddress);
@@ -90,16 +112,13 @@ $('body').on('click', '[c-found-club-button]', function() {
   });
 });
 
+THDC.bindOnFirstBlockListener = function(block) {
+  var contract = web3.eth.contract(contracts.factory.abi);
+  var ClubFactory = contract.at(contracts.factory.address);
+  ClubFactory.allEvents({}, console.log);
 
+};
 
 jQuery(function() {
-
-  var $txModal = $("#txModal");
-  var showTxModal = function(tx) {
-    $txModal.find('[thdc-tx]').html(THDC.utils.linkToTx(tx));
-    $txModal.removeClass('hide');
-  };
-
   $('[name=lighthouse]').val(contracts.lighthouse.address);
-
 });
