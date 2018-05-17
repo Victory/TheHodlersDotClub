@@ -26,6 +26,8 @@ function onError(err) {
     console.trace();
   } catch (e) {}
   console.log(err);
+  $("#errModal").find('[thdc-err]').text(err.message);
+  $("#errModal").vModal('show');
   throw "general error";
 }
 
@@ -84,7 +86,7 @@ $('body').on('click', '[c-create-contract-button]', function() {
   var contract = web3.eth.contract(contracts.factory.abi);
   var ClubFactory = contract.at(contracts.factory.address);
 
-  ClubFactory.createClub(function(err, tx) {
+  ClubFactory.createClub({gasPrice: web3.toWei('3', 'gwei')}, function(err, tx) {
     onError(err);
     showTxModal(tx);
   });
@@ -106,17 +108,16 @@ $('body').on('click', '[c-found-club-button]', function() {
   var contract = web3.eth.contract(contracts.club.abi);
   var Club = contract.at(clubAddress);
   Club.foundClub(minPrice, minBuyIn, penaltyPercentage, blocksUntilMaturity, lighthouse,
-      {value: minBuyIn},
+      {value: minBuyIn, gasPrice: web3.toWei('3', 'gwei')},
       function(err, tx) {
 
   });
 });
 
-THDC.bindOnFirstBlockListener = function(block) {
+THDC.bindOnFirstBlockListener = function(blockNumber) {
   var contract = web3.eth.contract(contracts.factory.abi);
   var ClubFactory = contract.at(contracts.factory.address);
-  ClubFactory.allEvents({}, console.log);
-
+  ClubFactory.allEvents({from: blockNumber - 7000}, console.log);
 };
 
 jQuery(function() {

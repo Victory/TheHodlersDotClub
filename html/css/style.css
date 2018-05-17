@@ -118,3 +118,9 @@ button:hover {
 th, td {
     border: 1px solid black;
 }
+
+.scroll {
+    width: 100%;
+    overflow: scroll;
+    font-size: .6em;
+}
