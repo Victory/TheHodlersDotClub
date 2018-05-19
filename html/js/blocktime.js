@@ -1,4 +1,7 @@
-window.blockTime = {};
+window.blockTime = {
+  gasPrice: web3.toWei('3', 'gwei')
+};
+
 
 blockTime.init = function (updateTime) {
   var $blockNumber = $("[blocktime-current-block-number]");
@@ -23,6 +26,7 @@ blockTime.init = function (updateTime) {
       blockTime.blockNumber = number;
       if (blockTime.firstBlockNumber === 0) {
         blockTime.firstBlockNumber = blockTime.blockNumber;
+
       }
 
       if (blockTime.firstBlockNumber + blockTime.blocksBeforeReload < blockTime.blockNumber) {

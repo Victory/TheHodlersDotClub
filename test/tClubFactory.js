@@ -65,3 +65,66 @@ contract('ClubFactory', function(accounts) {
     });
   });
 });
+
+
+contract('ClubFactory', function(accounts) {
+  const admin = accounts[0];
+  const founder1 = accounts[1];
+  const founder2 = accounts[2];
+  const founder3 = accounts[3];
+
+  let clubFactoryAddress;
+
+  it("should return list of clubs and users", function () {
+    let factory;
+    let clubs = [];
+    return ClubFactory.deployed().then(function (instance) {
+      factory = instance;
+      return factory.createClub({from: founder1});
+    }).then(function (tx) {
+      const evt = findEventByNameOrFail(tx, 'ClubCreated');
+      clubFactoryAddress = evt.args._club;
+      clubs.push(clubFactoryAddress);
+      assert.equal(founder1, evt.args._founder);
+      assert.equal(admin, evt.args._admin);
+
+      return factory.createClub({from: founder1});
+    }).then(function(tx) {
+      const evt = findEventByNameOrFail(tx, 'ClubCreated');
+      clubFactoryAddress = evt.args._club;
+      clubs.push(clubFactoryAddress);
+      assert.equal(founder1, evt.args._founder);
+      assert.equal(admin, evt.args._admin);
+
+      return factory.getClubs.call({});
+    }).then(function (result) {
+      assert.deepEqual(clubs, result);
+
+      return factory.getFoundersClubs.call(founder1);
+    }).then(function (result) {
+      assert.deepEqual(clubs, result);
+
+      return factory.createClub({from: founder2});
+    }).then(function (tx) {
+      const evt = findEventByNameOrFail(tx, 'ClubCreated');
+      clubFactoryAddress = evt.args._club;
+      clubs.push(clubFactoryAddress);
+      assert.equal(founder2, evt.args._founder);
+      assert.equal(admin, evt.args._admin);
+
+      return factory.getFoundersClubs.call(founder1);
+    }).then(function (result) {
+      assert.deepEqual(clubs.slice(0, 2), result);
+
+      return factory.getFoundersClubs.call(founder2);
+    }).then(function (result) {
+      assert.deepEqual(clubs.slice(2, 3), result);
+
+      return factory.createClub({from: founder3});
+    }).then(function () {
+      return factory.getFounders.call();
+    }).then(function (result) {
+      assert.deepEqual([founder1, founder2, founder3], result);
+    });
+  });
+});
