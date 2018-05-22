@@ -23,8 +23,8 @@ var network = {
 
 var contracts = {
   factory: {
-    address: '0xae2a0b54f3adf2a678efac69f9d26cbaef771ff9',
-    abi: [{"constant":true,"inputs":[],"name":"getAdmin","outputs":[{"name":"_admin","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"getClubs","outputs":[{"name":"","type":"address[]"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_newAdmin","type":"address"}],"name":"newAdmin","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"createClub","outputs":[{"name":"_club","type":"address"}],"payable":false,"type":"function"},{"inputs":[],"payable":false,"type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"_founder","type":"address"},{"indexed":false,"name":"_admin","type":"address"},{"indexed":false,"name":"_club","type":"address"}],"name":"ClubCreated","type":"event"}]
+    address: '0x73294AEcef93EE3483b9081476978a67f6a6984B',
+    abi: [{"constant":true,"inputs":[],"name":"getAdmin","outputs":[{"name":"_admin","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"getClubs","outputs":[{"name":"","type":"address[]"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_newAdmin","type":"address"}],"name":"newAdmin","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"getFounders","outputs":[{"name":"","type":"address[]"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"createClub","outputs":[{"name":"_club","type":"address"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"_founder","type":"address"}],"name":"getFoundersClubs","outputs":[{"name":"","type":"address[]"}],"payable":false,"type":"function"},{"inputs":[],"payable":false,"type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"_founder","type":"address"},{"indexed":false,"name":"_admin","type":"address"},{"indexed":false,"name":"_club","type":"address"}],"name":"ClubCreated","type":"event"}]
   },
   lighthouse: {
     address: '0xdd3a294310dbd8b53feee7ca1e1205062fe5d066',

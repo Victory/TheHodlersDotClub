@@ -6,7 +6,6 @@ contract TheHodlersDotClubFactory {
     address[] clubs;
     address[] founders;
 
-    // founder => created clubs
     mapping(address => address[]) founderToCreatedClubs;
 
     address admin;
