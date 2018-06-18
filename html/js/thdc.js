@@ -110,16 +110,44 @@ $('body').on('click', '[c-found-club-button]', function() {
   Club.foundClub(minPrice, minBuyIn, penaltyPercentage, blocksUntilMaturity, lighthouse,
       {value: minBuyIn, gasPrice: web3.toWei('3', 'gwei')},
       function(err, tx) {
-
+        onError(err);
   });
 });
 
-THDC.bindOnFirstBlockListener = function(blockNumber) {
-  var contract = web3.eth.contract(contracts.factory.abi);
-  var ClubFactory = contract.at(contracts.factory.address);
-  ClubFactory.allEvents({from: blockNumber - 7000}, console.log);
-};
-
 jQuery(function() {
   $('[name=lighthouse]').val(contracts.lighthouse.address);
+
+  var contract = web3.eth.contract(contracts.factory.abi);
+  var ClubFactory = contract.at(contracts.factory.address);
+  var $contractList = $('[c-your-contracts]');
+  var $noContractsLi = $('[c-no-contracts-yet]');
+  var knownClubs = [];
+
+  var findClubs = function() {
+    ClubFactory.getClubs(function(err, clubs) {
+      onError(err);
+      if (clubs.length != 0 && knownClubs.length == clubs.length) {
+        return;
+      }
+      if (clubs.length > 0) {
+        $noContractsLi.remove();
+      } else {
+        $noContractsLi.text('No contracts found');
+      }
+
+      clubs.forEach(function(club) {
+        if (knownClubs.indexOf(club) != -1) {
+          return;
+        }
+        knownClubs.push(club);
+        var $li = $("<li>", {text: club});
+        console.log(club);
+        $contractList.append($li);
+      });
+
+    });
+  };
+
+  findClubs();
+  setInterval(findClubs, 5000);
 });

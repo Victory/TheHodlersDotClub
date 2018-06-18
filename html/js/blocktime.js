@@ -42,6 +42,8 @@ blockTime.init = function (updateTime) {
     });
   };
 
+  //$("body").one("blocktime-block-number", );
+
   setTimeout(updateBlockNumber, 1);
   setInterval(updateBlockNumber, updateTime);
   setInterval(function() {

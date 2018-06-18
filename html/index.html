@@ -88,6 +88,17 @@
       <button type="button" c-create-contract-button>Publish New Contract</button>
     </form>
 
+    <h4 class="your-contracts-header">Your Contracts
+      <span c-info>
+        <sup c-info-icon>&#x1f6c8;</sup>
+        <span class="hide" c-info-info>This will be a list of your current contracts, it updates every 5 seconds.
+        </span>
+      </span>
+    </h4>
+    <ol class="tiny-list" c-your-contracts>
+      <li c-no-contracts-yet>Searching for contracts...</li>
+    </ol>
+
     <h3>Step 2: Set Parameters</h3>
     <form class="pact-form" c-found-club>
       <label>

@@ -124,3 +124,13 @@ th, td {
     overflow: scroll;
     font-size: .6em;
 }
+
+h4.your-contracts-header {
+    marign: 0px;
+    padding: 0px;
+}
+.tiny-list {
+    font-size: .6em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
