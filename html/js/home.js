@@ -59,7 +59,15 @@ window.addEventListener('load', function() {
     switch (netId) {
       case '3125659152':
         if (network.number != '3125659152') {
-          $('#rpcError').modal('show');
+          $("#errModal").find('[thdc-err]').text("Please use login to MetaMask and set your Custom RPC to https://wallrpc.pirl.io/");
+          $("#errModal").vModal('show');
+        }
+        $network.text('PIRL');
+        break;
+      case '3':
+        if (network.number != '3') {
+          $("#errModal").find('[thdc-err]').text("Please use login to MetaMask and set your MetaMask to the Ropsten test network");
+          $("#errModal").vModal('show');
         }
         $network.text('PIRL');
         break;

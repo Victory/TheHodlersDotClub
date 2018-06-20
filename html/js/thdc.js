@@ -2,22 +2,6 @@ THDC = {
   utils: {}
 };
 
-// == jQuery plugins ==
-(function($) {
-  $.fn.vModal = function(action) {
-
-    if (action === undefined) {
-      this.addClass('hide');
-    } else if (action === "show") {
-      this.removeClass('hide');
-    } else if (action === "hide") {
-      this.addClass('hide');
-    }
-
-    return this;
-  };
-}(jQuery));
-
 
 // == misc functions ==
 function onError(err) {
@@ -69,18 +53,6 @@ var showTxModal = function(tx) {
   $txModal.find('[thdc-tx]').html(THDC.utils.linkToTx(tx));
   $txModal.vModal("show");
 };
-
-// == global bindings ==
-$('body').on('click', '[data-dismiss=modal]', function () {
-  $(this).parents('.modal').addClass('hide');
-});
-
-$('body').on('click', '.modal', function (evt) {
-  var $target = $(evt.target);
-  if (evt.target == this || $target.hasClass('modal-dialog')) {
-    $(this).addClass('hide');
-  }
-});
 
 $('body').on('click', '[c-create-contract-button]', function() {
   var contract = web3.eth.contract(contracts.factory.abi);
@@ -141,8 +113,20 @@ jQuery(function() {
         }
         knownClubs.push(club);
         var $li = $("<li>", {text: club});
-        console.log(club);
         $contractList.append($li);
+
+        var contract = web3.eth.contract(contracts.club.abi);
+        var Club = contract.at(club);
+        Club.getStatus(function(err, result) {
+          onError(err);
+          var status = new ClubStatus(result);
+          console.log(club, status);
+
+          var $clubAddress = $('[name=clubAddress]');
+          if (!status.founded && $clubAddress.val() == "") {
+           $clubAddress.val(club);
+          }
+        });
       });
 
     });
