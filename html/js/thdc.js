@@ -112,7 +112,11 @@ jQuery(function() {
           return;
         }
         knownClubs.push(club);
-        var $li = $("<li>", {text: club});
+        var $li = $("<li>");
+        var $href = $("<a>", {href: "club.html?clubAddress=" + club,
+          text: club, target: "_blank"});
+        $li.append($href);
+
         $contractList.append($li);
 
         var contract = web3.eth.contract(contracts.club.abi);

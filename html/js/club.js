@@ -1,6 +1,6 @@
 var getAddressFromQuery = function() {
   var q = document.location.search;
-  var target = "contractAddress=";
+  var target = "clubAddress=";
 
   var labelIndex = q.indexOf(target);
 
