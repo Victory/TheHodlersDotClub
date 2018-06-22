@@ -106,5 +106,12 @@ var ClubStatus = function(result) {
   this.numberOfMatureHodlers = result[9];
   this.isDisbanded = result[10];
   this.numberOfVotesToDisband = result[11];
+  this.admin = result[12];
 };
 
+var HodlerInfo = function(result) {
+  this.blockJoined = result[0];
+  this.maturityBlock = result[1];
+  this.hodling = result[2];
+  this.isMature = result[3];
+};

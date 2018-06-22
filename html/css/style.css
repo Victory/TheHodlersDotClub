@@ -134,3 +134,7 @@ h4.your-contracts-header {
     margin-top: 0;
     margin-bottom: 0;
 }
+
+th {
+    text-align: left;
+}

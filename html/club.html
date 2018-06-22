@@ -34,19 +34,34 @@
       <tr><th>Blocks Until Maturity</th><td c-club-info="blocksUntilMaturity"></td></tr>
       <tr><th>Founded</th><td c-club-info="founded"></td></tr>
       <tr><th>Price Has Been Reached</th><td c-club-info="priceHasBeenReached"></td></tr>
-      <tr><th></th><td c-club-info="lighthouse"></td></tr>
-      <tr><th></th><td c-club-info="adminPool"></td></tr>
-      <tr><th></th><td c-club-info="hodlersPool"></td></tr>
-      <tr><th></th><td c-club-info="numberOfMatureHodlers"></td></tr>
-      <tr><th></th><td c-club-info="isDisbanded"></td></tr>
-      <tr><th></th><td c-club-info="numberOfVotesToDisband"></td></tr>
-      <tr><th></th><td c-club-info="admin"></td></tr>
+      <tr><th>Lighthouse Address</th><td c-club-info="lighthouse"></td></tr>
+      <tr><th>Admin Pool</th><td c-club-info="adminPool"></td></tr>
+      <tr><th>Hodlers Pool</th><td c-club-info="hodlersPool"></td></tr>
+      <tr><th>Number of Mature Hodlers</th><td c-club-info="numberOfMatureHodlers"></td></tr>
+      <tr><th>Is Disbanded</th><td c-club-info="isDisbanded"></td></tr>
+      <tr><th>Number of Disband Votes</th><td c-club-info="numberOfVotesToDisband"></td></tr>
+      <tr><th>Admin Address</th><td c-club-info="admin"></td></tr>
     </table>
 
+    <h3>Members</h3>
+    <ol c-club-memebers>
+      <li>Searching...</li>
+    </ol>
+
+      <button type="submit" onclick="document.location.reload()">Click to Reload</button>
   </div>
+
+  <table c-hodler-info-prototype>
+    <tr><th>Block Joined</th><td c-hodler-info="blockJoined"></td></tr>
+    <tr><th>Maturity Block</th><td c-hodler-info="maturityBlock"></td></tr>
+    <tr><th>Amount Hodling</th><td c-hodler-info="hodling"></td></tr>
+    <tr><th>Is Mature</th><td c-hodler-info="isMature"></td></tr>
+  </table>
 </div>
 
 <script src="js/jquery.min.js"></script>
+<script src="js/modal.js"></script>
+<script src="js/blocktime.js"></script>
 <script src="js/thdc.js"></script>
 <script src="js/home.js"></script>
 <script src="js/club.js"></script>
