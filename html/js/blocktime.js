@@ -9,7 +9,6 @@ blockTime.init = function (updateTime) {
 
   var updateBlockNumber = function() {
     web3.eth.getBlockNumber(function (err, number) {
-      console.log('number', number);
       if (err) {
         $blockNumber.text("Could not retrieve");
         console.error(err);
@@ -37,6 +36,7 @@ blockTime.init = function (updateTime) {
       blockTime.lastBlockNumberTime = now;
       blockTime.timeSinceLastBlock = 0;
 
+      console.log('number', number);
       $("body").trigger("blocktime-block-number", {number:web3.toBigNumber(number)});
       $blockNumber.text(number);
     });

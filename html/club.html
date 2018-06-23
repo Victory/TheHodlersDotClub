@@ -23,9 +23,12 @@
   </div>
 </div>
 
-<div class="how-it-works-header-box">
-  <div class="how-it-works-header-item">
+<div class="club-box">
+  <div class="club-item">
     <button type="button" c-join-club>Join Club</button>
+    <button type="button" c-join-club>Hodl More</button>
+    <button type="button" c-set-mature>Set Mature</button>
+    <button type="button" onclick="document.location.reload()">Check for Updates</button>
 
     <table>
       <tr><th>Target Price</th><td c-club-info="minPrice"></td></tr>
@@ -44,20 +47,69 @@
     </table>
 
     <h3>Members</h3>
-    <ol c-club-memebers>
-      <li>Searching...</li>
-    </ol>
+    <table>
 
-      <button type="submit" onclick="document.location.reload()">Click to Reload</button>
+      <thead>
+      <tr>
+        <th>Address</th>
+        <th>Block Joined</th>
+        <th>Maturity Block</th>
+        <th>Amount Hodling</th>
+        <th>Maturity</th>
+      </tr>
+      </thead>
+      <tbody c-club-memebers>
+      <tr c-hodler-info-prototype>
+        <td c-hodler-info="address"></td>
+        <td c-hodler-info="blockJoined"></td>
+        <td c-hodler-info="maturityBlock"></td>
+        <td c-hodler-info="hodling"></td>
+        <td c-hodler-info="setMature"></td>
+      </tr>
+      </tbody>
+    </table>
+
   </div>
 
-  <table c-hodler-info-prototype>
-    <tr><th>Block Joined</th><td c-hodler-info="blockJoined"></td></tr>
-    <tr><th>Maturity Block</th><td c-hodler-info="maturityBlock"></td></tr>
-    <tr><th>Amount Hodling</th><td c-hodler-info="hodling"></td></tr>
-    <tr><th>Is Mature</th><td c-hodler-info="isMature"></td></tr>
-  </table>
 </div>
+
+
+<div class="modal fade hide" tabindex="-1" role="dialog" id="txModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Transaction Sent</h4>
+      </div>
+      <div class="modal-body">
+        <p>TxHash: <span thdc-tx></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal txModal -->
+
+<div class="modal fade hide" tabindex="-1" role="dialog" id="errModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Error</h4>
+      </div>
+      <div class="modal-body">
+        <pre thdc-err class="scroll"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal txModal -->
+
 
 <script src="js/jquery.min.js"></script>
 <script src="js/modal.js"></script>
