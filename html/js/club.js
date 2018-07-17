@@ -76,7 +76,7 @@ jQuery(function($) {
             var info = new HodlerInfo(result);
             var $info = $hodlerInfoTablePrototype.clone();
             $info.find('[c-hodler-info=address]').html($address);
-            $info.find('[c-hodler-info=hodling]').text(web3.fromWei(info.hodling.valueOf(), 'ether') + " " + network.units);
+            $info.find('[c-hodler-info=hodling]').html(web3.fromWei(info.hodling.valueOf(), 'ether') + " " + network.units);
             var blockJoined = info.blockJoined.valueOf();
             $info.find('[c-hodler-info=blockJoined]').text(blockJoined);
             $info.find('[c-hodler-info=maturityBlock]').text(info.maturityBlock.valueOf());
@@ -84,12 +84,19 @@ jQuery(function($) {
             var blocksUntilMature = parseInt(info.maturityBlock.sub(blockTime.blockNumber).valueOf());
             blocksUntilMature = blocksUntilMature > 0 ? blocksUntilMature : 0;
             if (info.isMature) {
-              $info.find('[c-hodler-info=setMature]').text("Is Mature");
+              $info.find('[c-hodler-info=setMature]').text("Mature");
             } else if (blocksUntilMature == 0 && !info.isMature) {
               var $setMature = $("<button>", {text: "Click to Set Mature!"});
+              $setMature.click(function() {
+                Club.setMature(h, function(err, tx) {
+                  onError(err);
+                  showTxModal(tx);
+                  $info.find('[c-hodler-info=setMature]').text("Setting Mature");
+                });
+              });
               $info.find('[c-hodler-info=setMature]').html($setMature);
             } else {
-              $info.find('[c-hodler-info=setMature]').text(blocksUntilMature + " blocks until mature");
+              $info.find('[c-hodler-info=setMature]').text(blocksUntilMature + " blocks until eligible for maturity");
             }
 
             var $trs = $list.find("tr");
@@ -125,14 +132,14 @@ jQuery(function($) {
       var status = new ClubStatus(result);
 
       $('[c-club-info=minPrice]').text(parseFloat(status.minPrice) / 100.0 + " USD");
-      $('[c-club-info=minBuyIn]').text(web3.fromWei(status.minBuyIn, 'ether') + " " + network.units);
+      $('[c-club-info=minBuyIn]').html(web3.fromWei(status.minBuyIn, 'ether') + " " + network.units);
       $('[c-club-info=penaltyPercentage]').text((status.penaltyPercentage / 10) + "%");
       $('[c-club-info=blocksUntilMaturity]').text((status.blocksUntilMaturity));
       $('[c-club-info=founded]').text(status.founded);
       $('[c-club-info=priceHasBeenReached]').text(status.priceHasBeenReached);
       $('[c-club-info=lighthouse]').html(THDC.utils.linkToAddress(status.lighthouse));
-      $('[c-club-info=adminPool]').text(status.adminPool + " " + network.units);
-      $('[c-club-info=hodlersPool]').text(status.hodlersPool + " " + network.units);
+      $('[c-club-info=adminPool]').html(status.adminPool + " " + network.units);
+      $('[c-club-info=hodlersPool]').html(status.hodlersPool + " " + network.units);
       $('[c-club-info=numberOfMatureHodlers]').text(status.numberOfMatureHodlers);
       $('[c-club-info=isDisbanded]').text(status.isDisbanded);
       $('[c-club-info=numberOfVotesToDisband]').text(status.numberOfVotesToDisband);

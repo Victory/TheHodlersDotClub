@@ -12,8 +12,8 @@ var network = {
 
 var network = {
   longName: 'TEST NET',
-  //units: 'PIRL <sup>(Ropsten)</sup>',
-  units: 'PIRL', // FIXME
+  units: 'ETH <sup>(Ropsten)</sup>',
+  //units: 'PIRL', // FIXME
   net: 'https://node.kickthecoin.com/ropsten',
   number: '3',
   explorerHome: 'https://ropsten.etherscan.io/',
@@ -57,6 +57,7 @@ window.addEventListener('load', function() {
 
   web3.version.getNetwork(function(err, netId) {
     switch (netId) {
+      /*
       case '3125659152':
         if (network.number != '3125659152') {
           $("#errModal").find('[thdc-err]').text("Please use login to MetaMask and set your Custom RPC to https://wallrpc.pirl.io/");
@@ -64,6 +65,7 @@ window.addEventListener('load', function() {
         }
         $network.text('PIRL');
         break;
+        */
       case '3':
         if (network.number != '3') {
           $("#errModal").find('[thdc-err]').text("Please use login to MetaMask and set your MetaMask to the Ropsten test network");
@@ -72,6 +74,8 @@ window.addEventListener('load', function() {
         $network.text('PIRL');
         break;
       default:
+        $("#errModal").find('[thdc-err]').text("Please use login to MetaMask and set your MetaMask to the Ropsten test network");
+        $("#errModal").vModal('show');
         $network.text('This is an unknown network.');
     }
 
