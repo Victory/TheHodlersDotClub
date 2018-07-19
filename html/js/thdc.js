@@ -96,7 +96,7 @@ jQuery(function() {
   var knownClubs = [];
 
   var findClubs = function() {
-    ClubFactory.getClubs(function(err, clubs) {
+    ClubFactory.getFoundersClubs(web3.eth.accounts[0], function(err, clubs) {
       onError(err);
       if (clubs.length != 0 && knownClubs.length == clubs.length) {
         return;
@@ -136,6 +136,6 @@ jQuery(function() {
     });
   };
 
-  findClubs();
+  setTimeout(findClubs, 1000);
   setInterval(findClubs, 5000);
 });
