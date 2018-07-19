@@ -8,7 +8,7 @@
   <link href="css/style.css" rel="stylesheet">
 
 </head>
-<body>
+<body style="text-align: center">
 
 
 
@@ -19,6 +19,7 @@
         <h3>You are Viewing Club:
         <span c-club-address></span>
         </h3>
+        <p>To learn how TheHodlers.Club works visit the <a href="/">Home Page</a>.</p>
       </div>
     </div>
   </div>
@@ -26,7 +27,6 @@
 
 <div class="club-box">
   <div class="club-item">
-
     <h3>Club Info</h3>
     <table>
       <tr><th>Target Price</th><td c-club-info="minPrice"></td></tr>
@@ -45,10 +45,11 @@
     </table>
 
     <h3>Actions</h3>
-    <button type="button" c-join-club>Join Club</button>
-    <button type="button" c-join-club>Hodl More</button>
-    <button type="button" c-set-mature>Set Mature</button>
-    <button type="button" onclick="document.location.reload()">Check for Updates</button>
+    <button type="button" c-join-club title="Join this club by sending the Min Buy In price to the contract.">Join Club</button>
+    <button type="button" c-join-club title="Add more coins to your holdings">Hodl More</button>
+    <button type="button" c-query-lighthouse title="Query the lighthouse if you think the price is above the target price.">Query Lighthouse</button>
+    <button type="button" c-vote-to-disband title="Either vote to disband or remove your disband vote. It once the contract is disbanded everyone can leave without penalty or reward.">Vote To Disband</button>
+    <button type="button" onclick="document.location.reload()" title="Refresh the page and query the blockchain">Refresh</button>
 
 
     <h3>Members</h3>
