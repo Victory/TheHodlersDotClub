@@ -18,7 +18,8 @@ var network = {
   number: '3',
   explorerHome: 'https://ropsten.etherscan.io/',
   explorerAddr: 'https://ropsten.etherscan.io/address/',
-  explorerTx: 'https://ropsten.etherscan.io/tx/'
+  explorerTx: 'https://ropsten.etherscan.io/tx/',
+  explorerBlock: 'https://ropsten.etherscan.io/block/'
 };
 
 var contracts = {
@@ -118,4 +119,9 @@ var HodlerInfo = function(result) {
   this.maturityBlock = result[1];
   this.hodling = result[2];
   this.isMature = result[3];
+};
+
+var LighthousePriceInfo = function(result) {
+  this.priceInUsd = "$" + (result[0] / 100).toFixed(2);
+  this.lastPriceUpdateBlockNumber = result[1];
 };

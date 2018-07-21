@@ -156,3 +156,16 @@ table th {
     flex: none;
 }
 
+.modal-form {
+    padding-left: 15%;
+    padding-right: 15%;
+}
+
+.ul-left {
+    text-align: left;
+}
+
+input[type=checkbox], input[type=radio]  {
+    display: inline;
+    width: 20px;
+}

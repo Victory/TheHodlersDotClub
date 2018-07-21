@@ -36,6 +36,8 @@
       <tr><th>Founded</th><td c-club-info="founded"></td></tr>
       <tr><th>Price Has Been Reached</th><td c-club-info="priceHasBeenReached"></td></tr>
       <tr><th>Lighthouse Address</th><td c-club-info="lighthouse"></td></tr>
+      <tr><th>Price at Lighthouse</th><td c-lighthouse-info="price">?</td></tr>
+      <tr><th>Lighthouse Last Update</th><td c-lighthouse-info="lastPriceUpdateBlockNumber">?</td></tr>
       <tr><th>Admin Pool</th><td c-club-info="adminPool"></td></tr>
       <tr><th>Hodlers Pool</th><td c-club-info="hodlersPool"></td></tr>
       <tr><th>Number of Mature Hodlers</th><td c-club-info="numberOfMatureHodlers"></td></tr>
@@ -45,11 +47,13 @@
     </table>
 
     <h3>Actions</h3>
-    <button type="button" c-join-club title="Join this club by sending the Min Buy In price to the contract.">Join Club</button>
-    <button type="button" c-join-club title="Add more coins to your holdings">Hodl More</button>
+    <button type="button" c-join-club title="Join this club by sending the &quot;Min Buy In&quot; price to the contract.">Join Club!</button>
+    <button type="button" c-hodl-more title="Add more coins to your holdings.">Hodl More!</button>
     <button type="button" c-query-lighthouse title="Query the lighthouse if you think the price is above the target price.">Query Lighthouse</button>
+    <button type="button" c-leave-club title="Leave the club, either as a Hodler or as a Coward. Make sure you have set yourself mature, if possible, before leaving.">Leave Club</button>
     <button type="button" c-vote-to-disband title="Either vote to disband or remove your disband vote. It once the contract is disbanded everyone can leave without penalty or reward.">Vote To Disband</button>
-    <button type="button" onclick="document.location.reload()" title="Refresh the page and query the blockchain">Refresh</button>
+    <hr>
+    <button type="button" onclick="document.location.reload()" title="Refresh the page and query the blockchain.">Check for Updates</button>
 
 
     <h3>Members</h3>
@@ -90,6 +94,7 @@
       </div>
       <div class="modal-body">
         <p>TxHash: <span thdc-tx></span></p>
+        <p><small>Once your transaction has been added to the blockchain refresh this page.</small></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -114,7 +119,134 @@
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
-</div><!-- /.modal txModal -->
+</div><!-- /.modal errModal -->
+
+
+<div class="modal fade hide" tabindex="-1" role="dialog" id="hodlMoreModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Hodl More</h4>
+      </div>
+      <div class="modal-body">
+        <p>I add more coins to your Stack!</p>
+        <form class="modal-form" c-hodl-more-form>
+          <label>
+            Number of more Coins to hodl:
+            <span c-info>
+                <sup c-info-icon>&#x1f6c8;</sup>
+                <span class="hide" c-info-info>The number of additional <span c-network-units></span>.
+                  coins you want to add to your hodling. (This will not affect your maturity).</span>
+              </span>
+            <br>
+            <input type="number" name="numCoins"
+                   placeholder="15.5"
+            />
+          </label>
+
+          <button type="button" c-hodl-more-button>Click To Hodl More!</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal hodlMoreModal -->
+
+
+<div class="modal fade hide" tabindex="-1" role="dialog" id="leaveClubModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Leave Club</h4>
+      </div>
+      <div class="modal-body">
+        <h3>Before Leaving, Note the Following:</h3>
+        <ul class="ul-left">
+          <li>
+           This cannot be undone.
+          </li>
+          <li>
+            If you think the price has been reached but <strong>Price Has Been Reached</strong> in the
+            <strong>Club Info</strong> table is <strong>false</strong> then <a href="#" c-query-lighthouse>Query the
+            Lighthouse</a> first.
+          </li>
+
+          <li>
+            You can only leave as a hodler if the price has been reached. Otherwise there is a penalty.
+          </li>
+          <li>
+            If the target price has not been reached you will leave behind <strong c-club-info="penaltyPercentage"></strong> of
+            your hodlings.
+          </li>
+          <li>
+            Make sure to set yourself as mature if you have not done so already.
+          </li>
+          <li>If the club is disbanded you can just leave. There is no penalty or reward.</li>
+        </ul>
+
+        <form class="modal-form" c-leave-club-form>
+
+          <label>
+            <input type="checkbox" name="confirmLeave"  />
+            Click to confirm that you have read and understood the above notices.
+          </label>
+          <br>
+
+          <button type="button" c-leave-club-button>Leave Club</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal leaveClubModal -->
+
+<div class="modal fade hide" tabindex="-1" role="dialog" id="disbandModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Vote to Disband</h4>
+      </div>
+      <div class="modal-body">
+
+        <form class="modal-form" c-disband-form>
+          <p>After a club is disbanded anyone can then leave the club without penalty or reward.</p>
+          <p>Only Mature Members and the Founder can vote to disband.</p>
+          <p>Reasons you might want to disband:</p>
+          <ul class="ul-left">
+            <li>Nobody has joined the club. You are the only member so there is little incentive to stay.</li>
+            <li>The lighthouse is not being updated so the price is not accurate.</li>
+            <li>The price seems unrealistically optimistic, so may never be reached.</li>
+          </ul>
+
+          <div class="ul-left" style="margin-left: 10%">
+            <label>
+              <input type="radio" name="disband" value="false" checked/> <strong>NO</strong> keep this club together and HODL!
+            </label>
+            <br>
+
+            <label>
+              <input type="radio" name="disband" value="true"/> <strong>YES</strong> this club should disbanded.
+            </label>
+
+            <br>
+            <br>
+          </div>
+          <button type="button" c-disband-button>Cast your Vote</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal disbandModal -->
 
 
 <script src="js/jquery.min.js"></script>

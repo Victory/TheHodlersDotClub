@@ -1,3 +1,4 @@
+
 var getAddressFromQuery = function() {
   var q = document.location.search;
   var target = "clubAddress=";
@@ -17,6 +18,7 @@ var getAddressFromQuery = function() {
 
 var showTxModal;
 jQuery(function($) {
+  var cGasPrice = web3.toWei(5, 'gwei');
 
   var $txModal = $("#txModal");
   showTxModal = function(tx) {
@@ -32,12 +34,13 @@ jQuery(function($) {
   $('[c-club-address]').html(THDC.utils.linkToAddress(clubAddress));
 
   $("body").one("blocktime-block-number", function() {
-
     var contract = web3.eth.contract(contracts.club.abi);
     var Club = contract.at(clubAddress);
 
-    $('body',).on('click', '[c-set-mature]', function() {
+    contract = web3.eth.contract(contracts.lighthouse.abi);
+    var Lighthouse;
 
+    $('body',).on('click', '[c-set-mature]', function() {
       var hodler = web3.eth.accounts[0];
       Club.getHodlerInfo(hodler, function (err, result) {
 
@@ -54,7 +57,7 @@ jQuery(function($) {
           onError({message: "You can not set address " + hodler + "\nmature for another " + blocksUntilMature + " blocks"});
         }
       });
-    });
+    }); // end setMature
 
     var $hodlerInfoTablePrototype = $('[c-hodler-info-prototype]');
     $hodlerInfoTablePrototype = $hodlerInfoTablePrototype.clone();
@@ -68,27 +71,41 @@ jQuery(function($) {
       if (hodlers.length == 0) {
         $list.html($("<tr>", {text: "Club not founded.", colspan: 5}));
       } else {
-        hodlers.forEach(function (h) {
-          var $address = THDC.utils.linkToAddress(h);
+        var seenHodlers = [];
+        hodlers.forEach(function(hodler) {
+          if ($.inArray(hodler, seenHodlers) != -1) {
+            return;
+          }
+          seenHodlers.push(hodler);
 
-          Club.getHodlerInfo(h, function (err, result) {
+          var $address = THDC.utils.linkToAddress(hodler);
+
+          Club.getHodlerInfo(hodler, function (err, result) {
             onError(err);
             var info = new HodlerInfo(result);
             var $info = $hodlerInfoTablePrototype.clone();
             $info.find('[c-hodler-info=address]').html($address);
             $info.find('[c-hodler-info=hodling]').html(web3.fromWei(info.hodling.valueOf(), 'ether') + " " + network.units);
             var blockJoined = info.blockJoined.valueOf();
-            $info.find('[c-hodler-info=blockJoined]').text(blockJoined);
-            $info.find('[c-hodler-info=maturityBlock]').text(info.maturityBlock.valueOf());
+            if (blockJoined > 0) {
+              $info.find('[c-hodler-info=blockJoined]').text(blockJoined);
+              $info.find('[c-hodler-info=maturityBlock]').text(info.maturityBlock.valueOf());
+            } else {
+              $info.find('[c-hodler-info=blockJoined]').text('N/A');
+              $info.find('[c-hodler-info=maturityBlock]').text('N/A');
+            }
 
             var blocksUntilMature = parseInt(info.maturityBlock.sub(blockTime.blockNumber).valueOf());
             blocksUntilMature = blocksUntilMature > 0 ? blocksUntilMature : 0;
-            if (info.isMature) {
+            if (blockJoined == 0) {
+              $info.find('[c-hodler-info=setMature]').text('Member has left club');
+            } else if (info.isMature) {
               $info.find('[c-hodler-info=setMature]').text("Mature");
             } else if (blocksUntilMature == 0 && !info.isMature) {
               var $setMature = $("<button>", {text: "Click to Set Mature!"});
-              $setMature.click(function() {
-                Club.setMature(h, function(err, tx) {
+              $setMature.on('click', function() {
+                console.log('h', hodler);
+                Club.setMature(hodler, {gasPrice: cGasPrice}, function(err, tx) {
                   onError(err);
                   showTxModal(tx);
                   $info.find('[c-hodler-info=setMature]').text("Setting Mature");
@@ -125,8 +142,9 @@ jQuery(function($) {
           });
         });
       }
-    });
+    }); // end getHodlers
 
+    /** Club Status **/
     Club.getStatus(function (err, result) {
       onError(err);
       var status = new ClubStatus(result);
@@ -138,21 +156,97 @@ jQuery(function($) {
       $('[c-club-info=founded]').text(status.founded);
       $('[c-club-info=priceHasBeenReached]').text(status.priceHasBeenReached);
       $('[c-club-info=lighthouse]').html(THDC.utils.linkToAddress(status.lighthouse));
-      $('[c-club-info=adminPool]').html(status.adminPool + " " + network.units);
-      $('[c-club-info=hodlersPool]').html(status.hodlersPool + " " + network.units);
+      $('[c-club-info=adminPool]').html(web3.fromWei(status.adminPool, 'ether') + " " + network.units);
+      $('[c-club-info=hodlersPool]').html(web3.fromWei(status.hodlersPool, 'ether') + " " + network.units);
       $('[c-club-info=numberOfMatureHodlers]').text(status.numberOfMatureHodlers);
       $('[c-club-info=isDisbanded]').text(status.isDisbanded);
       $('[c-club-info=numberOfVotesToDisband]').text(status.numberOfVotesToDisband);
       $('[c-club-info=admin]').html(THDC.utils.linkToAddress(status.admin));
 
-
       $('body').on('click', '[c-join-club]', function (evt) {
         evt.preventDefault();
-        Club.joinClub({value: status.minBuyIn}, function (err, tx) {
+        Club.joinClub({value: status.minBuyIn, gasPrice: cGasPrice}, function (err, tx) {
           onError(err);
           showTxModal(tx);
         });
       });
+
+      Lighthouse = contract.at(status.lighthouse);
+      Lighthouse.getPriceAndWhen(function(err, result) {
+        onError(err);
+        var lighthousePriceInfo = new LighthousePriceInfo(result);
+        $('[c-lighthouse-info=price]').text(lighthousePriceInfo.priceInUsd);
+        var $a = $("<a>", {
+          text: lighthousePriceInfo.lastPriceUpdateBlockNumber,
+          href: network.explorerBlock + lighthousePriceInfo.lastPriceUpdateBlockNumber,
+          target: '_blank'
+        });
+        $('[c-lighthouse-info=lastPriceUpdateBlockNumber]').text('block ');
+        $('[c-lighthouse-info=lastPriceUpdateBlockNumber]').append($a);
+      });
+    }); // end getStatus
+
+
+    /** *********************************************** **/
+    /** Action Buttons **/
+
+    $('body').on('click', '[c-hodl-more]', function() {
+      $('#hodlMoreModal').vModal('show');
     });
-  });
-});
+
+    $('body').on('click', '[c-hodl-more-button]', function() {
+      var $form = $("[c-hodl-more-form]");
+      var numCoins = $form.find("[name=numCoins]").val();
+      $('#hodlMoreModal').vModal('hide');
+
+      Club.joinClub({value: web3.toWei(numCoins, 'ether'), gasPrice: cGasPrice}, function(err, tx) {
+        onError(err);
+        showTxModal(tx);
+      });
+    });
+
+    $('body').on('click', '[c-leave-club]', function() {
+      $('[name=confirmLeave]').prop('checked', false);
+      $('#leaveClubModal').vModal('show');
+    });
+
+    $('body').on('click', '[c-leave-club-button]', function() {
+      var checked = $('[name=confirmLeave]').prop('checked');
+
+      if (!checked) {
+        alert("You must confirm you have read the above");
+        return;
+      }
+
+      $('#leaveClubModal').vModal('hide');
+      Club.leaveClub({gasPrice: cGasPrice}, function(err, tx) {
+        onError(err);
+        showTxModal(tx);
+      });
+    });
+
+    $('body').on('click', '[c-query-lighthouse]', function() {
+      Club.queryLighthouse({gasPrice: cGasPrice}, function(err, tx) {
+        onError(err);
+        showTxModal(tx);
+      });
+    });
+
+    $('body').on('click', '[c-vote-to-disband]', function() {
+      $('#disbandModal').vModal('show');
+    });
+    $('body').on('click', '[c-disband-button]', function() {
+      var disband = "true" == $('[name=disband]:checked').val();
+
+      Club.voteToDisband(disband, {gasPrice: cGasPrice}, function(err, tx) {
+        onError(err)
+        showTxModal(tx);
+      });
+      $('#disbandModal').vModal('hide');
+    });
+
+
+
+
+  }); // end bind on first block
+}); // end document ready
