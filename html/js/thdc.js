@@ -64,8 +64,30 @@ $('body').on('click', '[c-create-contract-button]', function() {
   });
 });
 
-$('body').on('click', '[c-found-club-button]', function() {
+$('body').on('click', '[c-found-club-button]', function(evt) {
+  evt.preventDefault();
+
   var $form = $(this).parents('[c-found-club]');
+
+
+  var foundError = false;
+  $form.find('input').each(function (input) {
+    if (foundError) {
+      return;
+    }
+
+    var $this = $(this);
+    var val = $this.val();
+    if (val == "") {
+      foundError = true;
+      var what = $this.parent().text().split(':');
+      onError({message: "'" + what[0].trim() + "' is a required field. Try entering its value again."});
+    }
+  });
+
+  if (foundError) {
+    return;
+  }
 
   // TODO Sanitize
   var clubAddress = $form.find('[name=clubAddress]').val();

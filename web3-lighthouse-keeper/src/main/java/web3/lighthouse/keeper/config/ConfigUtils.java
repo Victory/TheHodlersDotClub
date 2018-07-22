@@ -13,7 +13,7 @@ public class ConfigUtils {
     String contractAddress = "0xdd3a294310dbd8b53feee7ca1e1205062fe5d066";
     String apiUrl = "https://api.coinmarketcap.com/v1/ticker/pirl/?convert=USD";
     String priceJsonKey = "price_usd";
-    int poolingIntervalInSeconds = 800;
+    int poolingIntervalInSeconds = 1500 + (int) Math.round(Math.random() * 60);
 
     return new Config(rpcUrl, apiUrl, priceJsonKey, poolingIntervalInSeconds, contractAddress);
   }

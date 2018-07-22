@@ -100,6 +100,7 @@
     </ol>
 
     <h3>Step 2: Set Parameters</h3>
+    <small class="tiny-list">* All Fields Required</small>
     <form class="pact-form" c-found-club>
       <label>
         Club Address:
@@ -112,7 +113,9 @@
         <br>
         <!-- debug value set -->
         <input type="text" name="clubAddress"
-               placeholder="0xabc123..." />
+               placeholder="0xabc123..."
+               required
+        />
       </label>
 
       <label>
@@ -152,9 +155,7 @@
             </span>
           </span>
         <br>
-        <input type="number" name="penaltyPercentage"
-               placeholder="10"
-        />
+        <input type="number" name="penaltyPercentage" value="20" />
       </label>
 
       <label>
@@ -168,8 +169,7 @@
             </span>
           </span>
         <br>
-        <input type="number" name="blocksUntilMaturity"
-               placeholder="50"
+        <input type="number" name="blocksUntilMaturity" value="50000"
         />
       </label>
 
@@ -185,7 +185,7 @@
         <input type="text" name="lighthouse" />
       </label>
 
-      <button type="button" c-found-club-button>Found Club</button>
+      <button type="submit" c-found-club-button>Found Club</button>
     </form>
 
 
